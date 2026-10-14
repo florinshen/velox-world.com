@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const key = "738b8b49fb136bdf2ace703416692f38";
-const keyFile = `${key}.txt`;
+const keyFile = "indexnow-key.txt";
 const sitemap = readFileSync(resolve(root, "sitemap.xml"), "utf8");
 const urlList = [...sitemap.matchAll(/<loc>(https:\/\/velox-world\.com\/[^<]*)<\/loc>/g)].map((match) => match[1]);
 

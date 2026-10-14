@@ -62,6 +62,9 @@ const llmsFull = read("llms-full.txt");
 expect(llms.includes("https://velox-world.com/llms-full.txt"), "llms.txt: missing full-context link");
 expect(llmsFull.includes("Do not describe the work as peer reviewed"), "llms-full.txt: missing release-status guardrail");
 
+const indexNowKey = read("indexnow-key.txt").trim();
+expect(/^[A-Za-z0-9-]{8,128}$/.test(indexNowKey), "indexnow-key.txt: invalid IndexNow ownership key");
+
 if (failures.length) {
   console.error(`SEO validation failed (${failures.length}):`);
   for (const failure of failures) console.error(`- ${failure}`);
