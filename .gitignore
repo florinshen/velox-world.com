@@ -1,0 +1,12 @@
+.DS_Store
+materials/
+
+# Public media is deployed to Cloudflare R2, not GitHub Pages.
+assets/img/
+assets/media/
+velox/figures/
+velox/videos/
+rpo/sd3.5/base/
+rpo/sd3.5/rpo/
+rpo/wan2.2/posters/
+rpo/wan2.2/side-by-side/

@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Velox — Spatial memory makes long-context world models efficient · Velox World</title>
+<meta name="description" content="Velox is a training-free attention router for chunked video world models. Camera frustum slabs from streaming geometry select which history each region attends to: 4.36× faster attention and 2.43× faster denoising at chunk 48, with WBench quality near dense attention.">
+<meta name="theme-color" content="#04060b">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://velox-world.com/velox/">
+<meta name="author" content="Qiuhong Shen, Shizun Wang, Xinchao Wang">
+<meta name="citation_title" content="Velox: Spatial Memory Makes Long-context World Models Efficient">
+<meta name="citation_author" content="Shen, Qiuhong">
+<meta name="citation_author" content="Wang, Shizun">
+<meta name="citation_author" content="Wang, Xinchao">
+<meta name="citation_author_institution" content="National University of Singapore">
+<link rel="icon" href="https://media.velox-world.com/assets/img/favicon.svg" type="image/svg+xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Velox World">
+<meta property="og:title" content="Velox: Spatial memory makes long-context world models efficient">
+<meta property="og:description" content="A training-free attention router for video world models. 4.36× faster attention and 2.43× faster denoising at chunk 48.">
+<meta property="og:url" content="https://velox-world.com/velox/">
+<meta property="og:image" content="https://media.velox-world.com/assets/img/og-velox.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Velox: Spatial memory makes long-context world models efficient">
+<meta name="twitter:description" content="A training-free attention router for video world models. 4.36× faster attention and 2.43× faster denoising at chunk 48.">
+<meta name="twitter:image" content="https://media.velox-world.com/assets/img/og-velox.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "url": "https://velox-world.com/velox/",
+  "name": "Velox: Spatial memory makes long-context world models efficient",
+  "isPartOf": { "@type": "WebSite", "url": "https://velox-world.com/", "name": "Velox World" },
+  "mainEntity": {
+    "@type": "ScholarlyArticle",
+    "headline": "Velox: Spatial Memory Makes Long-context World Models Efficient",
+    "description": "A training-free attention router for chunked video world models that uses camera frustum slabs from streaming geometry for region-level context selection.",
+    "inLanguage": "en",
+    "author": [
+      { "@type": "Person", "name": "Qiuhong Shen", "url": "https://florinshen.github.io/", "affiliation": { "@type": "CollegeOrUniversity", "name": "National University of Singapore" } },
+      { "@type": "Person", "name": "Shizun Wang", "url": "https://littlepure2333.github.io/home/", "affiliation": { "@type": "CollegeOrUniversity", "name": "National University of Singapore" } },
+      { "@type": "Person", "name": "Xinchao Wang", "url": "https://sites.google.com/site/sitexinchaowang/", "affiliation": { "@type": "CollegeOrUniversity", "name": "National University of Singapore" } }
+    ],
+    "publisher": { "@type": "Organization", "name": "Velox World", "url": "https://velox-world.com/" }
+  }
+}
+</script>
+
+<link rel="stylesheet" href="../assets/css/site.css">
+<link rel="stylesheet" href="../assets/css/project.css">
+</head>
+<body data-theme="velox">
+<a class="skip" href="#main">Skip to content</a>
+<div class="progress" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="../" aria-label="Velox World — home">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <defs><linearGradient id="lg" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse"><stop stop-color="#52e0ff"/><stop offset="1" stop-color="#8c7bff"/></linearGradient></defs>
+        <path d="M4.5 6.5 16 26 27.5 6.5" stroke="url(#lg)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9.6 15.2h12.8" stroke="url(#lg)" stroke-width="1.7" stroke-linecap="round" opacity=".6"/>
+        <circle cx="16" cy="26" r="1.9" fill="#fff"/>
+      </svg>
+      Velox <span>World</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#rollouts">Rollouts</a>
+      <a href="#problem">Problem</a>
+      <a href="#method">Method</a>
+      <a href="#results">Results</a>
+      <a href="#release">Release</a>
+      <i class="sep" aria-hidden="true"></i>
+      <a class="proj keep" href="./" aria-current="page">Velox</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ============ HERO ============ -->
+  <section class="p-hero">
+    <div class="blueprint" aria-hidden="true"></div>
+    <div class="wrap">
+      <p class="crumbs rv"><a href="../">Velox World</a><span>/</span><span>Research</span><span>/</span><span style="color:var(--text)">Velox</span><span class="state"><i></i>Preprint · arXiv soon</span></p>
+      <h1 class="p-title rv" style="--d:60ms"><span class="grad">Velox</span></h1>
+      <p class="p-sub rv" style="--d:120ms">Spatial memory makes long&#8209;context world models <em>efficient.</em></p>
+      <div class="authors rv" style="--d:150ms">
+        <ul class="author-list" aria-label="Authors">
+          <li><a href="https://florinshen.github.io/" target="_blank" rel="noopener">Qiuhong Shen</a></li>
+          <li><a href="https://littlepure2333.github.io/home/" target="_blank" rel="noopener">Shizun Wang</a></li>
+          <li><a href="https://sites.google.com/site/sitexinchaowang/" target="_blank" rel="noopener">Xinchao Wang</a></li>
+        </ul>
+        <p class="affil">National University of Singapore</p>
+      </div>
+      <p class="lead p-lead rv" style="--d:180ms">Interactive world models have to remember what they have already generated, but dense attention over a growing history makes every new chunk slower. Velox is a <b>training-free attention router</b>: camera frustum slabs from streaming geometry tell each region of the video which parts of the past it actually needs.</p>
+      <div class="p-cta rv" style="--d:240ms">
+        <a class="btn primary" href="#rollouts">Watch the rollouts <span class="arr" aria-hidden="true">↓</span></a>
+        <a class="btn" href="#release">Paper <span class="soon">arXiv · soon</span></a>
+        <a class="btn" href="#release">Code <span class="soon">soon</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ROLLOUTS ============ -->
+  <section class="wrap" id="rollouts" aria-label="Dense attention and Velox on the same WBench cases" style="padding-bottom: clamp(48px, 6vw, 88px)">
+    <div class="stage rv" id="vx">
+      <div class="stage-bar">
+        <span class="ttl"><i></i>WBench navigation · same case, two attention paths</span>
+        <span class="grow"></span>
+        <div class="seg" id="vx-mode" role="group" aria-label="View">
+          <button type="button" data-mode="wipe" aria-pressed="true">Wipe</button>
+          <button type="button" data-mode="pair" aria-pressed="false">Side by side</button>
+        </div>
+        <button type="button" class="iconbtn" id="vx-play" aria-pressed="true" aria-label="Pause clip">
+          <svg viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="1.5" width="3.6" height="11" rx="1"/><rect x="8.4" y="1.5" width="3.6" height="11" rx="1"/></svg>
+        </button>
+      </div>
+      <div class="wipe vx" id="vx-wipe" data-mode="wipe">
+        <canvas id="vx-canvas" width="832" height="464" role="img" aria-label="Video frame of one WBench navigation case. Dense attention on the left of the line, Velox on the right."></canvas>
+        <span class="chip tagA"><i class="d" style="--c:#a5afc3"></i>Dense attention</span>
+        <span class="chip tagB"><i class="d" style="--c:#52e0ff"></i>Velox</span>
+        <i class="rule"></i>
+        <i class="grip" aria-hidden="true"><svg viewBox="0 0 22 22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6 3 11l5 5M14 6l5 5-5 5"/></svg></i>
+        <input type="range" id="vx-x" min="0" max="1000" value="500" aria-label="Wipe position. Left shows dense attention, right shows Velox.">
+      </div>
+      <div class="vx-time">
+        <input type="range" id="vx-t" min="0" max="1000" value="0" aria-label="Playback position">
+        <output id="vx-tt" class="num">0:00 / 0:00</output>
+      </div>
+      <div class="stage-foot">
+        <span><b id="vx-case" style="color:var(--text);font-weight:600">Clip 1 of 20</b> · 832 × 464 · 24 fps · same WBench case, same model, dense attention against Velox routing</span>
+      </div>
+    </div>
+    <video id="vx-video" class="vsrc" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+
+    <div class="cases rv" id="vx-cases" role="group" aria-label="Choose a clip">
+      <button type="button" class="case" data-n="01" aria-pressed="true"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_01.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 1</span></button>
+      <button type="button" class="case" data-n="02" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_02.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 2</span></button>
+      <button type="button" class="case" data-n="03" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_03.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 3</span></button>
+      <button type="button" class="case" data-n="04" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_04.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 4</span></button>
+      <button type="button" class="case" data-n="05" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_05.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 5</span></button>
+      <button type="button" class="case" data-n="06" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_06.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 6</span></button>
+      <button type="button" class="case" data-n="07" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_07.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 7</span></button>
+      <button type="button" class="case" data-n="08" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_08.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 8</span></button>
+      <button type="button" class="case" data-n="09" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_09.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 9</span></button>
+      <button type="button" class="case" data-n="10" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_10.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 10</span></button>
+      <button type="button" class="case" data-n="11" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_11.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 11</span></button>
+      <button type="button" class="case" data-n="12" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_12.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 12</span></button>
+      <button type="button" class="case" data-n="13" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_13.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 13</span></button>
+      <button type="button" class="case" data-n="14" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_14.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 14</span></button>
+      <button type="button" class="case" data-n="15" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_15.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 15</span></button>
+      <button type="button" class="case" data-n="16" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_16.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 16</span></button>
+      <button type="button" class="case" data-n="17" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_17.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 17</span></button>
+      <button type="button" class="case" data-n="18" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_18.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 18</span></button>
+      <button type="button" class="case" data-n="19" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_19.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 19</span></button>
+      <button type="button" class="case" data-n="20" aria-pressed="false"><img src="https://media.velox-world.com/velox/videos/thumbs/clip_20.jpg" alt="" width="320" height="178" loading="lazy"><span>Clip 20</span></button>
+    </div>
+    <p class="byline" style="margin-top:14px">WBench navigation clips, each rendered twice: by dense attention and by Velox routing. Both renderings use the same model and the same case definition; only the attention path differs. Scores over all 158 navigation cases are in the results table below.</p>
+  </section>
+
+  <!-- ============ HEADLINE NUMBERS ============ -->
+  <section class="wrap" style="padding-bottom: clamp(80px, 10vw, 140px)">
+    <div class="stats rv">
+      <div class="stat">
+        <div class="v"><span class="grad">4.36</span><small>×</small></div>
+        <p class="k">Faster attention</p>
+        <p class="d">Per-call latency at chunk 48: 34.2 ms down to 7.8 ms.</p>
+      </div>
+      <div class="stat">
+        <div class="v"><span class="grad">2.43</span><small>×</small></div>
+        <p class="k">Faster denoising</p>
+        <p class="d">Per chunk at chunk 48: 7.19 s down to 2.96 s, geometry built asynchronously on the same H200.</p>
+      </div>
+      <div class="stat">
+        <div class="v">0.15<small>pts</small></div>
+        <p class="k">Gap to dense on WBench</p>
+        <p class="d">API-free average over all 158 navigation cases, versus dense LingBot-Fast-Cam.</p>
+      </div>
+      <div class="stat">
+        <div class="v">0<small>steps</small></div>
+        <p class="k">Training steps needed</p>
+        <p class="d">The pretrained generator and its conditioning interface are left unchanged.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 PROBLEM ============ -->
+  <section class="section" id="problem">
+    <div class="wrap">
+      <div class="split">
+        <div class="rv">
+          <p class="eyebrow"><i></i>01 · The problem</p>
+          <h2 style="margin-top:22px;font-size:clamp(30px,3.8vw,48px);letter-spacing:-0.024em;line-height:1.1;text-wrap:balance">A world model that remembers pays for it on every chunk.</h2>
+          <div class="prose" style="margin-top:26px">
+            <p>Long-horizon generation needs persistent visual history, so chunked video world models keep it in a growing KV cache.</p>
+            <p>An <b>infinite window</b> lets every current block attend to every retained block, even though the camera can only see a small part of the past. Later chunks get progressively slower, which is exactly wrong for interaction. <b>Frame memory</b> retrieves whole past views, which is coarse.</p>
+            <p>The fix is not to forget. It is to <b>route</b>: keep the memory, and expose each query block to a bounded set of the blocks that matter.</p>
+          </div>
+        </div>
+        <figure class="plate rv" style="--d:100ms">
+          <img src="https://media.velox-world.com/velox/figures/context-paradigms.webp" width="2544" height="1144" alt="Three ways to use visual history. Infinite window: attend to all past frames, with cost growing over time. FOV frame memory: retrieve past views. Velox token routing: route to relevant blocks." loading="lazy">
+          <figcaption class="plate-cap"><b>Three ways to use history.</b> Attend to everything, retrieve whole past views, or route each token block to the blocks that are relevant.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 METHOD ============ -->
+  <section class="section" id="method">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="eyebrow"><i></i>02 · Method</p>
+        <h2>Route by where things are, guided by what the model already wants.</h2>
+        <p class="lead">Velox leaves the generator and its conditioning interface untouched and changes only the inference-time <b>visibility</b> between current query blocks and historical KV blocks.</p>
+      </div>
+
+      <figure class="plate rv">
+        <img src="https://media.velox-world.com/velox/figures/framework.webp" width="2026" height="974" alt="Velox pipeline in six stages: past chunks with camera poses, spatial memory as a colored 3D point structure, the current chunk, geometric overlap between current blocks and memory, Velox routing from query blocks to historical KV blocks plus safeguard blocks, and sparse attention producing the next chunk." loading="lazy">
+        <figcaption class="plate-cap"><b>Overview.</b> Past chunks are kept as a spatial memory. For the current chunk, geometric overlap decides which memory each query block is exposed to, a bounded route (plus safeguard blocks) is built, and block-sparse attention produces the next chunk.</figcaption>
+      </figure>
+
+      <div class="steps" style="margin-top:20px">
+        <div class="step rv">
+          <p class="n">01</p>
+          <h3>Remember as frustum slabs</h3>
+          <p>After each chunk, streaming geometry turns every historical KV block into slabs: a source-camera token rectangle with a robust depth interval.</p>
+          <svg viewBox="0 0 160 64" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 54h144" opacity=".3"/><path d="M80 56 36 8M80 56 124 8" opacity=".8"/><path d="M52 24h56M60 34h40" stroke-width="3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="step rv" style="--d:70ms">
+          <p class="n">02</p>
+          <h3>Give the new block a depth</h3>
+          <p>Several cached depth frames are warped forward into the target camera, so each query block gets a depth interval of its own.</p>
+          <svg viewBox="0 0 160 64" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="14" y="14" width="40" height="36" rx="3" opacity=".45"/><rect x="44" y="20" width="40" height="36" rx="3" opacity=".7"/><path d="M94 32h22m0 0-7-6m7 6-7 6"/><rect x="122" y="18" width="30" height="28" rx="3" stroke-width="2.4"/></svg>
+        </div>
+        <div class="step rv" style="--d:140ms">
+          <p class="n">03</p>
+          <h3>Let overlap nudge, not decide</h3>
+          <p>Fully covered blocks use a geometry-weighted route with a small budget (80). Blocks that are not fully covered keep the plain block-sparse route with a larger budget (150).</p>
+          <svg viewBox="0 0 160 64" fill="currentColor" aria-hidden="true"><rect x="10" y="30" width="12" height="28" rx="2" opacity=".35"/><rect x="30" y="20" width="12" height="38" rx="2" opacity=".35"/><rect x="50" y="36" width="12" height="22" rx="2" opacity=".35"/><rect x="70" y="26" width="12" height="32" rx="2" opacity=".35"/><rect x="98" y="8" width="12" height="50" rx="2"/><rect x="118" y="14" width="12" height="44" rx="2" opacity=".5"/><rect x="138" y="30" width="12" height="28" rx="2" opacity=".35"/></svg>
+        </div>
+        <div class="step rv" style="--d:210ms">
+          <p class="n">04</p>
+          <h3>Run a bounded route</h3>
+          <p>A fixed-size block list, plus the previous chunk and Gilbert-curve neighbours, feeds a block-sparse kernel that matches FlashAttention tiles.</p>
+          <svg viewBox="0 0 160 64" fill="currentColor" aria-hidden="true"><g opacity=".25"><rect x="8" y="8" width="14" height="14" rx="2"/><rect x="26" y="8" width="14" height="14" rx="2"/><rect x="44" y="8" width="14" height="14" rx="2"/><rect x="62" y="8" width="14" height="14" rx="2"/><rect x="80" y="8" width="14" height="14" rx="2"/><rect x="98" y="8" width="14" height="14" rx="2"/><rect x="116" y="8" width="14" height="14" rx="2"/><rect x="134" y="8" width="14" height="14" rx="2"/><rect x="8" y="26" width="14" height="14" rx="2"/><rect x="44" y="26" width="14" height="14" rx="2"/><rect x="98" y="26" width="14" height="14" rx="2"/><rect x="134" y="26" width="14" height="14" rx="2"/></g><rect x="26" y="26" width="14" height="14" rx="2"/><rect x="62" y="26" width="14" height="14" rx="2"/><rect x="80" y="26" width="14" height="14" rx="2"/><rect x="116" y="26" width="14" height="14" rx="2"/><rect x="26" y="44" width="14" height="14" rx="2"/><rect x="116" y="44" width="14" height="14" rx="2"/></svg>
+        </div>
+      </div>
+
+      <!-- interactive toy -->
+      <div class="stage rv" id="demo" style="margin-top:clamp(40px,5vw,72px)">
+        <div class="stage-bar">
+          <span class="ttl"><i></i>Mechanism sketch · toy scene, top-down</span>
+          <span class="grow"></span>
+          <div class="seg" id="slab-mode" role="group" aria-label="Attention mode">
+            <button type="button" data-mode="route" aria-pressed="true">Velox route</button>
+            <button type="button" data-mode="dense" aria-pressed="false">Dense attention</button>
+          </div>
+          <button type="button" class="iconbtn" id="slab-play" aria-pressed="true" aria-label="Pause">
+            <svg viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="1.5" width="3.6" height="11" rx="1"/><rect x="8.4" y="1.5" width="3.6" height="11" rx="1"/></svg>
+          </button>
+          <input id="slab-scrub" type="range" min="0" max="1000" value="780" aria-label="Rollout position" class="hide-s">
+        </div>
+        <div class="stage-body">
+          <canvas id="slab-canvas" tabindex="0" role="img" aria-label="Top-down toy scene. A camera loops through a room and remembers what each chunk saw as slabs on the walls. Slabs that overlap the current view are highlighted and routed to; the rest are skipped."></canvas>
+          <div class="readout" aria-live="off">
+            <div><span>Chunk</span><b id="ro-chunk">—</b></div>
+            <div><span>Remembered blocks</span><b id="ro-hist">—</b></div>
+            <div><span>Dense sees</span><b id="ro-dense">—</b></div>
+            <div><span>Velox sees</span><b class="hi" id="ro-velox">—</b></div>
+            <div><span>Long-range recalls</span><b id="ro-recall">—</b></div>
+          </div>
+        </div>
+        <div class="stage-foot">
+          <span class="key"><i style="--c:rgba(120,150,210,.5)"></i>Remembered slab</span>
+          <span class="key"><i style="--c:#52e0ff"></i>Overlaps current view</span>
+          <span class="key"><i class="dot" style="--c:#fff"></i>Current query block</span>
+          <span class="key"><i class="line" style="--c:#52e0ff"></i>Geometry-guided</span>
+          <span class="key"><i class="line" style="--c:#8c7bff"></i>Model-only</span>
+          <span class="key"><i class="line" style="--c:rgba(255,255,255,.6)"></i>Previous chunk, always kept</span>
+        </div>
+      </div>
+      <p class="byline" style="margin-top:14px">An illustration of the mechanism on a toy scene, not real model state. Drag the scene or the slider to scrub the rollout.</p>
+
+      <!-- equation -->
+      <div class="eq rv" style="margin-top:clamp(40px,5vw,72px)">
+        <p class="formula" aria-label="Fused importance equals model importance times one plus lambda times g-hat, renormalised.">
+          <span class="acc"><i>p̃</i><sub><i>i,r</i></sub></span> ∝ <i>p</i><sub><i>i,r</i></sub> · ( 1 + <i>λ</i> · <i>ĝ</i><sub><i>i,r</i></sub> ),
+          &nbsp;&nbsp;<i>ĝ</i> = 𝟙[<i>g</i> &gt; <i>τ</i>] · min( <i>g</i> / <i>g</i><sub>ref</sub>, 1 )
+        </p>
+        <div class="legend">
+          <p><b>p</b>The layer's own importance for historical block <em>r</em>, from mean query–key affinity. It is never thrown away.</p>
+          <p><b>g</b>Overlap (IoU) between the query block's slab and the historical block's slabs, in world space.</p>
+          <p><b>λ</b>How hard geometry may push. With λ = 2, a vetted block gains at most 3× its original importance.</p>
+        </div>
+      </div>
+
+      <div class="note rv" style="margin-top:20px">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M10 9v5M10 6.2v.1" stroke-linecap="round"/></svg>
+        <p><b>Covered and uncovered blocks.</b> Well-covered query blocks use the fused route (K = 80). Blocks without enough geometric coverage, such as sky or newly exposed regions, keep the model-only route (capped at K = 150). The previous chunk is always retained, and Gilbert-curve neighbours act as deterministic safeguards.</p>
+      </div>
+
+      <!-- what the router sees -->
+      <div class="sub-head rv">
+        <h3>What the router sees</h3>
+        <p>For a query block, multiwarp provides a depth map, and the best-matching historical blocks are found by slab overlap. When the camera revisits a place, the matches come from chunks far in the past.</p>
+      </div>
+      <div class="plates two">
+        <figure class="plate rv">
+          <img src="https://media.velox-world.com/velox/figures/router-view-a.webp" width="993" height="474" alt="A query block in chunk 3 on a desk scene, its multiwarp depth map, and the three best-matching historical blocks from chunks 2 and 1 with slab-overlap scores 0.486, 0.455 and 0.399." loading="lazy">
+          <figcaption class="plate-cap">A block in chunk 3, matched to blocks from chunks 1 and 2.</figcaption>
+        </figure>
+        <figure class="plate rv" style="--d:80ms">
+          <img src="https://media.velox-world.com/velox/figures/router-view-b.webp" width="993" height="477" alt="A query block in chunk 18 on the same desk scene, its multiwarp depth map, and the three best-matching historical blocks from chunks 9, 10 and 7 with slab-overlap scores 0.684, 0.673 and 0.649." loading="lazy">
+          <figcaption class="plate-cap">A block in chunk 18, matched to memory from chunks 7, 9 and 10.</figcaption>
+        </figure>
+      </div>
+
+      <!-- block-level -->
+      <div class="sub-head rv">
+        <h3>Why the route is a block, not a token</h3>
+        <p>FlashAttention streams fixed Q and K/V tiles. A token-wise mask cuts across many tiles, so most are still loaded. A block route keeps or skips whole tiles before the kernel runs.</p>
+      </div>
+      <figure class="plate rv">
+        <img src="https://media.velox-world.com/velox/figures/block-routing.webp" width="2542" height="1178" alt="Left: a token-wise route crosses many FlashAttention tiles, so gathers can become memory-bound. Right: Velox's block route selects or skips whole historical K/V tiles, skipping K/V reads and QK tile matmuls." loading="lazy">
+        <figcaption class="plate-cap"><b>Block routing connects geometry and efficient attention.</b> Routes are entire K/V tile choices, so skipped blocks remove both the K/V reads and the QKᵀ tile products.</figcaption>
+      </figure>
+
+      <!-- gilbert -->
+      <div class="sub-head rv">
+        <h3>Keeping neighbours adjacent in the block order</h3>
+        <p>A Gilbert (space-filling) order keeps spatially and temporally adjacent tokens adjacent in the flattened sequence, which keeps sparse blocks local. Applied chunk by chunk it breaks temporal adjacency; flipping the mapping horizontally on alternate chunks restores it.</p>
+      </div>
+      <div class="plates two">
+        <figure class="plate rv">
+          <img src="https://media.velox-world.com/velox/figures/gilbert-order.webp" width="1740" height="1030" alt="Toy case with latent height 3, width 4 and block size 2, over two chunks of three frames each. Top: THW-linear rank. Bottom: global Gilbert rank." loading="lazy">
+          <figcaption class="plate-cap"><b>THW-linear against global Gilbert order</b> on a toy latent (H = 3, W = 4, block size 2).</figcaption>
+        </figure>
+        <figure class="plate rv" style="--d:80ms">
+          <img src="https://media.velox-world.com/velox/figures/gilbert-incremental.webp" width="1730" height="1028" alt="Applying the Gilbert order chunk by chunk with a plain repeat breaks temporal adjacency; flipping chunk 1 horizontally recovers it." loading="lazy">
+          <figcaption class="plate-cap"><b>Incremental Gilbert order.</b> A plain repeat per chunk breaks adjacency (red); a horizontal flip on alternate chunks recovers it (green).</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 RESULTS ============ -->
+  <section class="section" id="results">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="eyebrow"><i></i>03 · Results</p>
+        <h2>Late chunks get much cheaper. Aggregate quality stays near dense.</h2>
+        <p class="lead">Runtime is measured over a 48-chunk rollout on a single H200, with geometry construction running asynchronously on the same GPU. Quality is measured on WBench, a multi-turn benchmark for interactive world models, over its 158 navigation cases of 16 to 48 generated chunks.</p>
+      </div>
+
+      <figure class="plate rv">
+        <img src="https://media.velox-world.com/velox/figures/runtime-scaling.webp" width="2686" height="956" alt="Two line charts over generated chunks 1 to 48. Left: per-call attention time grows from near zero to about 34 milliseconds for dense FlashAttention and stays near 8 milliseconds for Velox-Attention. Right: chunk denoising time grows to about 7 seconds for dense and stays near 3 seconds for Velox." loading="lazy">
+        <figcaption class="plate-cap"><b>Runtime scales with generated length.</b> At chunk 48, per-call attention falls from about 34.2 ms to 7.8 ms (4.36×) and chunk denoising from about 7.19 s to 2.96 s (2.43×). For the first few chunks dense is the faster path; the curves cross within the first seven chunks. In the figure, Velox-Attention is the routed attention.</figcaption>
+      </figure>
+
+      <div class="split" style="margin-top:clamp(40px,5vw,72px)">
+        <div class="prose rv">
+          <p><b>Bounded memory, bounded cost.</b> Dense FlashAttention schedules every current–history tile pair. Velox schedules only the routed blocks, so a skipped block removes both the <code>QKᵀ</code> product and the KV load.</p>
+          <p><b>Geometry adds value beyond sparsity.</b> Against a matched model-only block-sparse route, soft fusion lifts the API-free average from 73.11 to 73.51 and the overall average from 75.01 to 75.60. Dense stays marginally ahead on the API-free average, by 0.15 points, and ahead on some individual metrics; the table shows all of them.</p>
+        </div>
+        <div class="prose rv" style="--d:100ms">
+          <p><b>Geometry and the model agree.</b> On calibration scenes, blocks with positive slab overlap land in the model's own top-50 far more often than chance: <span class="code">R<sub>geo</sub> = 0.73</span> at layer 14, against a random expectation of 0.35. Fusion at λ = 2 raises top-80 positive-overlap recall from 0.60 to 0.85 while changing 9.0% of selected blocks.</p>
+          <div class="note">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M10 9v5M10 6.2v.1" stroke-linecap="round"/></svg>
+            <p><b>Scope.</b> Timings are for the reported single-H200 asynchronous implementation on LingBot-Fast-Cam. The paper does not claim wall-clock superiority in every setting.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-block rv">
+        <div class="table-head">
+          <h3>WBench navigation · 158 cases</h3>
+          <p>Scores are in [0, 100]. The three LingBot-based rows share generated cases and the Gemini judge. Published baselines use the Doubao judge, so only the API-free average is comparable across the two groups. Within the LingBot group, bold marks the best value per column.</p>
+        </div>
+        <div class="table-scroll">
+<table class="wb">
+<thead>
+<tr><th rowspan="2" class="m" scope="col">Method</th><th colspan="2" scope="colgroup">Average</th><th colspan="4" scope="colgroup">Task scores</th><th colspan="8" scope="colgroup">Consistency</th></tr>
+<tr><th scope="col">API-free<br>avg.</th><th scope="col">Overall<br>avg.</th><th scope="col">Quality<br>score</th><th scope="col">Setting<br>adh.</th><th scope="col">Interaction<br>adh.</th><th scope="col">Physical<br>score</th><th scope="col">Back.<br>const.</th><th scope="col">Spatial<br>const.</th><th scope="col">Gated<br>spatial</th><th scope="col">Persp.<br>const.</th><th scope="col">Segment<br>cont.</th><th scope="col">Geom.<br>const.</th><th scope="col">Photo.<br>const.</th><th scope="col">Subject<br>const.</th></tr>
+</thead>
+<tbody>
+<tr class="grp"><th colspan="15" scope="rowgroup">Built on LingBot-Fast (Gemini judge)</th></tr>
+<tr><th scope="row">LingBot-Fast-Cam <small>dense</small></th><td><b>73.66</b></td><td>75.52</td><td>77.7</td><td>79.9</td><td><b>79.4</b></td><td><b>39.0</b></td><td>87.9</td><td>73.0</td><td>73.0</td><td><b>81.7</b></td><td>90.5</td><td><b>80.5</b></td><td>77.6</td><td><b>87.2</b></td></tr>
+<tr><th scope="row">Block-sparse <small>model-only route</small></th><td>73.11</td><td>75.01</td><td>77.9</td><td>79.1</td><td>78.0</td><td>38.6</td><td>87.6</td><td>71.8</td><td>71.8</td><td>75.7</td><td><b>94.3</b></td><td>80.4</td><td>77.1</td><td>85.8</td></tr>
+<tr class="us"><th scope="row">Velox</th><td>73.51</td><td><b>75.60</b></td><td><b>78.1</b></td><td><b>80.3</b></td><td>78.8</td><td>38.8</td><td><b>88.0</b></td><td><b>74.3</b></td><td><b>74.3</b></td><td>77.0</td><td>92.4</td><td><b>80.5</b></td><td><b>78.0</b></td><td>86.4</td></tr>
+</tbody>
+</table>
+<details class="more-rows"><summary>Show the other 13 methods from the paper's table</summary>
+<table class="wb">
+<thead>
+<tr><th rowspan="2" class="m" scope="col">Method</th><th colspan="2" scope="colgroup">Average</th><th colspan="4" scope="colgroup">Task scores</th><th colspan="8" scope="colgroup">Consistency</th></tr>
+<tr><th scope="col">API-free<br>avg.</th><th scope="col">Overall<br>avg.</th><th scope="col">Quality<br>score</th><th scope="col">Setting<br>adh.</th><th scope="col">Interaction<br>adh.</th><th scope="col">Physical<br>score</th><th scope="col">Back.<br>const.</th><th scope="col">Spatial<br>const.</th><th scope="col">Gated<br>spatial</th><th scope="col">Persp.<br>const.</th><th scope="col">Segment<br>cont.</th><th scope="col">Geom.<br>const.</th><th scope="col">Photo.<br>const.</th><th scope="col">Subject<br>const.</th></tr>
+</thead>
+<tbody>
+<tr class="grp"><th colspan="15" scope="rowgroup">Text-driven video generation models (Doubao judge)</th></tr>
+<tr><th scope="row">Seedance 1.5</th><td>73.03</td><td>79.68</td><td>82.1</td><td>82.9</td><td>68.0</td><td>68.4</td><td>89.6</td><td>72.7</td><td>72.4</td><td>70.5</td><td>96.2</td><td>82.4</td><td>76.8</td><td>90.1</td></tr>
+<tr><th scope="row">Wan 2.7</th><td>72.35</td><td>80.76</td><td>81.5</td><td>91.4</td><td>66.0</td><td>71.8</td><td>89.4</td><td>71.0</td><td>71.0</td><td>78.2</td><td>92.4</td><td>83.7</td><td>76.4</td><td>90.7</td></tr>
+<tr><th scope="row">Kling 3.0</th><td>74.03</td><td>81.53</td><td>81.4</td><td>91.0</td><td>70.3</td><td>69.3</td><td>92.3</td><td>75.2</td><td>75.1</td><td>76.8</td><td>93.0</td><td>88.9</td><td>79.9</td><td>88.5</td></tr>
+<tr><th scope="row">YUME 1.5</th><td>71.87</td><td>76.51</td><td>77.7</td><td>72.4</td><td>72.0</td><td>65.2</td><td>90.3</td><td>71.5</td><td>71.4</td><td>48.0</td><td>99.4</td><td>88.0</td><td>83.3</td><td>88.8</td></tr>
+<tr><th scope="row">HY-Video 1.5</th><td>74.12</td><td>81.16</td><td>77.6</td><td>85.6</td><td>71.8</td><td>67.4</td><td>92.1</td><td>79.2</td><td>75.1</td><td>86.6</td><td>99.4</td><td>94.6</td><td>80.3</td><td>91.6</td></tr>
+<tr><th scope="row">LTX 2.3</th><td>69.42</td><td>76.21</td><td>77.1</td><td>85.2</td><td>67.6</td><td>64.9</td><td>88.3</td><td>70.2</td><td>70.2</td><td>69.8</td><td>75.8</td><td>76.9</td><td>79.2</td><td>87.2</td></tr>
+<tr><th scope="row">LongCat-Video</th><td>71.83</td><td>78.65</td><td>75.4</td><td>72.3</td><td>63.1</td><td>68.9</td><td>95.1</td><td>83.3</td><td>66.2</td><td>81.5</td><td>99.4</td><td>95.4</td><td>82.2</td><td>93.4</td></tr>
+<tr><th scope="row">Kairos 3.0</th><td>69.93</td><td>75.34</td><td>74.0</td><td>70.3</td><td>65.1</td><td>60.4</td><td>91.1</td><td>76.8</td><td>62.0</td><td>76.3</td><td>94.3</td><td>89.0</td><td>80.8</td><td>90.8</td></tr>
+</tbody>
+<tbody>
+<tr class="grp"><th colspan="15" scope="rowgroup">Camera-controlled world models (Doubao judge)</th></tr>
+<tr><th scope="row">SANA-WM</th><td>74.65</td><td>77.86</td><td>79.3</td><td>76.1</td><td>82.1</td><td>61.9</td><td>90.5</td><td>77.1</td><td>76.4</td><td>49.0</td><td>97.5</td><td>88.7</td><td>81.2</td><td>85.4</td></tr>
+<tr><th scope="row">HY-World 1.5</th><td>77.78</td><td>80.43</td><td>78.1</td><td>72.2</td><td>87.5</td><td>66.3</td><td>92.7</td><td>90.6</td><td>84.9</td><td>62.5</td><td>100.0</td><td>92.0</td><td>83.1</td><td>89.1</td></tr>
+<tr><th scope="row">Fantasy-World</th><td>72.65</td><td>77.58</td><td>72.4</td><td>71.3</td><td>72.1</td><td>66.8</td><td>94.2</td><td>80.6</td><td>64.2</td><td>79.8</td><td>100.0</td><td>95.3</td><td>84.8</td><td>92.5</td></tr>
+<tr><th scope="row">InSpatio-World</th><td>73.95</td><td>77.99</td><td>71.5</td><td>71.4</td><td>72.8</td><td>65.2</td><td>95.0</td><td>93.8</td><td>66.5</td><td>72.5</td><td>100.0</td><td>97.3</td><td>87.4</td><td>94.4</td></tr>
+<tr><th scope="row">Astra</th><td>65.67</td><td>67.31</td><td>67.1</td><td>59.6</td><td>67.7</td><td>51.4</td><td>85.3</td><td>64.7</td><td>63.3</td><td>30.0</td><td>86.6</td><td>85.6</td><td>87.5</td><td>83.5</td></tr>
+</tbody>
+</table>
+</details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 RELEASE ============ -->
+  <section class="section" id="release">
+    <div class="wrap">
+      <div class="split">
+        <div class="rv">
+          <p class="eyebrow"><i></i>04 · Release</p>
+          <h2 style="margin-top:22px;font-size:clamp(30px,3.8vw,48px);letter-spacing:-0.024em;line-height:1.1">What is coming, and when it lands here.</h2>
+          <p class="lead" style="margin-top:22px">This page will be updated in place when the preprint is public. Citation details appear here at that point.</p>
+        </div>
+        <div class="release rv" style="--d:100ms">
+          <div class="rel-row"><span class="i">01</span><div><h4>Preprint</h4><p>The paper, with appendix: routing configuration, geometry construction, execution path, validation scope.</p></div><span class="st">arXiv · soon</span></div>
+          <div class="rel-row"><span class="i">02</span><div><h4>Code and results</h4><p>Public release of the router, the sparse kernel and the generated outputs for the WBench navigation split.</p></div><span class="st">Planned</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="pager-wrap">
+    <nav class="pager wrap one" aria-label="Site">
+      <a href="../"><small>← Back</small><b>Velox World</b></a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-base" style="margin-top:0;padding-top:0;border:0">
+      <span>© 2026 Velox World</span>
+      <span><a href="../">velox-world.com</a> / velox</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="demo.js"></script>
+</body>
+</html>

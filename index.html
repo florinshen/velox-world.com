@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Velox World — Efficient world models for physical AI</title>
+<meta name="description" content="Velox World is a research team building efficient world models for physical AI: models that learn how the physical world looks, moves and responds to action, and run fast enough to plan and act inside it. Projects: Velox (spatial memory for long-context world models) and RPO (routing policy optimization for diffusion reinforcement learning).">
+<meta name="theme-color" content="#04060b">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://velox-world.com/">
+<link rel="icon" href="https://media.velox-world.com/assets/img/favicon.svg" type="image/svg+xml">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Velox World">
+<meta property="og:title" content="Velox World — Efficient world models for physical AI">
+<meta property="og:description" content="A research team building efficient world models that physical AI can plan and act inside.">
+<meta property="og:url" content="https://velox-world.com/">
+<meta property="og:image" content="https://media.velox-world.com/assets/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Velox World — Efficient world models for physical AI">
+<meta name="twitter:description" content="A research team building efficient world models that physical AI can plan and act inside.">
+<meta name="twitter:image" content="https://media.velox-world.com/assets/img/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://velox-world.com/#org",
+      "name": "Velox World",
+      "url": "https://velox-world.com/",
+      "logo": "https://media.velox-world.com/assets/img/favicon.svg",
+      "description": "A research team building efficient world models for physical AI."
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://velox-world.com/#site",
+      "url": "https://velox-world.com/",
+      "name": "Velox World",
+      "publisher": { "@id": "https://velox-world.com/#org" }
+    }
+  ]
+}
+</script>
+
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="stylesheet" href="assets/css/home.css">
+</head>
+<body data-theme="velox">
+<a class="skip" href="#main">Skip to content</a>
+<div class="progress" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="./" aria-label="Velox World — home">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <defs><linearGradient id="lg" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse"><stop stop-color="#52e0ff"/><stop offset="1" stop-color="#8c7bff"/></linearGradient></defs>
+        <path d="M4.5 6.5 16 26 27.5 6.5" stroke="url(#lg)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9.6 15.2h12.8" stroke="url(#lg)" stroke-width="1.7" stroke-linecap="round" opacity=".6"/>
+        <circle cx="16" cy="26" r="1.9" fill="#fff"/>
+      </svg>
+      Velox <span>World</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#vision">Vision</a>
+      <a href="#research">Research</a>
+      <a href="#direction">Direction</a>
+      <i class="sep" aria-hidden="true"></i>
+      <a class="proj keep" href="velox/">Velox</a>
+      <a class="proj keep" href="rpo/">RPO</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ============ HERO ============ -->
+  <section class="hero" aria-label="Velox World">
+    <canvas id="world" class="hero-canvas" aria-hidden="true"></canvas>
+    <div class="wrap hero-inner">
+      <p class="eyebrow live rv"><i></i>Velox World · Research team</p>
+      <h1 class="rv" style="--d:80ms">
+        <span>World models</span>
+        <span class="grad">for physical AI.</span>
+      </h1>
+      <p class="lead rv" style="--d:160ms">We build efficient world models: systems that learn how the physical world looks, moves and responds to action, and run fast enough to plan and act inside it.</p>
+      <p class="domains rv" style="--d:220ms" aria-label="Built toward embodied agents, autonomous systems, simulation and interactive worlds">
+        <span>Built toward</span>
+        <span class="cycle" aria-hidden="true">
+          <span style="--i:0">Embodied agents</span>
+          <span style="--i:1">Autonomous systems</span>
+          <span style="--i:2">Simulation</span>
+          <span style="--i:3">Interactive worlds</span>
+        </span>
+      </p>
+      <div class="hero-cta rv" style="--d:280ms">
+        <a class="btn primary" href="#research">Explore the research <span class="arr" aria-hidden="true">↓</span></a>
+        <a class="btn" href="#vision">Our vision</a>
+      </div>
+    </div>
+    <div class="hud" aria-hidden="true">
+      <div class="wrap hud-in">
+        <span><b>CAM</b>&nbsp; <span id="hud-cam">0.00 · 2.60</span></span>
+        <span class="hide-s"><b>FPS</b>&nbsp; <span id="hud-fps" class="ok">60</span></span>
+        <span class="hide-s"><b>Futures</b>&nbsp; <span class="plan"><span id="hud-plan">4</span> / 7</span></span>
+        <span class="noise-bar hide-s"><b>noise</b><i></i><b>world</b></span>
+        <span class="grow"></span>
+        <span class="hide-s">Move the cursor to steer</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GENERATED WORLDS ============ -->
+  <section class="wall" aria-label="Samples generated by our models">
+    <div class="wrap wall-head">
+      <span><b>Generated, not rendered</b></span>
+      <span>Samples from our models</span>
+    </div>
+    <div class="wall-view">
+      <div class="wall-track" id="wall-track">
+        <div class="tile"><video muted loop playsinline preload="none" data-src="https://media.velox-world.com/assets/media/wall/w01.mp4" poster="https://media.velox-world.com/assets/media/wall/w01.jpg" aria-hidden="true"></video><i></i></div>
+        <div class="tile"><video muted loop playsinline preload="none" data-src="https://media.velox-world.com/assets/media/wall/w02.mp4" poster="https://media.velox-world.com/assets/media/wall/w02.jpg" aria-hidden="true"></video><i></i></div>
+        <div class="tile"><video muted loop playsinline preload="none" data-src="https://media.velox-world.com/assets/media/wall/w03.mp4" poster="https://media.velox-world.com/assets/media/wall/w03.jpg" aria-hidden="true"></video><i></i></div>
+        <div class="tile"><video muted loop playsinline preload="none" data-src="https://media.velox-world.com/assets/media/wall/w04.mp4" poster="https://media.velox-world.com/assets/media/wall/w04.jpg" aria-hidden="true"></video><i></i></div>
+        <div class="tile"><video muted loop playsinline preload="none" data-src="https://media.velox-world.com/assets/media/wall/w05.mp4" poster="https://media.velox-world.com/assets/media/wall/w05.jpg" aria-hidden="true"></video><i></i></div>
+        <div class="tile"><video muted loop playsinline preload="none" data-src="https://media.velox-world.com/assets/media/wall/w06.mp4" poster="https://media.velox-world.com/assets/media/wall/w06.jpg" aria-hidden="true"></video><i></i></div>
+        <div class="tile"><video muted loop playsinline preload="none" data-src="https://media.velox-world.com/assets/media/wall/w07.mp4" poster="https://media.velox-world.com/assets/media/wall/w07.jpg" aria-hidden="true"></video><i></i></div>
+        <div class="tile"><video muted loop playsinline preload="none" data-src="https://media.velox-world.com/assets/media/wall/w08.mp4" poster="https://media.velox-world.com/assets/media/wall/w08.jpg" aria-hidden="true"></video><i></i></div>
+        <div class="tile"><video muted loop playsinline preload="none" data-src="https://media.velox-world.com/assets/media/wall/w09.mp4" poster="https://media.velox-world.com/assets/media/wall/w09.jpg" aria-hidden="true"></video><i></i></div>
+        <div class="tile"><video muted loop playsinline preload="none" data-src="https://media.velox-world.com/assets/media/wall/w10.mp4" poster="https://media.velox-world.com/assets/media/wall/w10.jpg" aria-hidden="true"></video><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VISION ============ -->
+  <section class="section" id="vision">
+    <div class="blueprint" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="eyebrow"><i></i>01 · Vision</p>
+        <h2>Physical AI needs a world it can rehearse in.</h2>
+        <p class="lead">Robots, vehicles and simulators act in a world where trying everything is slow, costly or unsafe. A world model lets an agent <b>imagine what happens next</b> before it commits. That only works if the imagination is consistent over long horizons, trained toward what matters, and fast enough to sit inside the control loop.</p>
+      </div>
+
+      <div class="vision-grid">
+        <ol class="reqs">
+          <li class="req rv">
+            <span class="idx">01</span>
+            <div>
+              <h3>Consistent</h3>
+              <p>Stay coherent as the horizon grows: remember what has been seen, and recognise it when the camera or the agent comes back.</p>
+            </div>
+            <a class="by" href="velox/">Velox →</a>
+          </li>
+          <li class="req rv" style="--d:70ms">
+            <span class="idx">02</span>
+            <div>
+              <h3>Aligned</h3>
+              <p>Be trained toward the signals that matter, with reinforcement learning cheap enough that we can actually iterate on it.</p>
+            </div>
+            <a class="by rpo" href="rpo/">RPO →</a>
+          </li>
+          <li class="req rv" style="--d:140ms">
+            <span class="idx">03</span>
+            <div>
+              <h3>Real-time</h3>
+              <p>Meet a latency budget. Memory, attention and training all have to be efficient before a world model can be used inside a loop.</p>
+            </div>
+            <span class="by both">Both</span>
+          </li>
+        </ol>
+
+        <figure class="imagine rv" style="--d:100ms">
+          <svg viewBox="0 0 600 380" role="img" aria-label="An agent imagines several possible futures ahead of it, compares them, and commits to one.">
+            <defs>
+              <linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#52e0ff" stop-opacity="0"/><stop offset="1" stop-color="#52e0ff" stop-opacity=".16"/></linearGradient>
+              <linearGradient id="pk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#52e0ff"/><stop offset="1" stop-color="#b6a6ff"/></linearGradient>
+              <symbol id="scene" viewBox="0 0 52 32"><path d="M5 23h42M9 23l9-9 7 6 8-10 10 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="39" cy="9" r="2.6" fill="currentColor"/></symbol>
+              <filter id="gl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <!-- floor -->
+            <rect x="0" y="60" width="600" height="320" fill="url(#fl)"/>
+            <g stroke="rgba(148,170,215,.14)" stroke-width="1" fill="none">
+              <path d="M380 60 L-120 380M380 60 L-40 380M380 60 L40 380M380 60 L120 380M380 60 L200 380M380 60 L290 380M380 60 L380 380M380 60 L470 380M380 60 L560 380M380 60 L650 380M380 60 L740 380"/>
+              <path d="M0 78H600M0 98H600M0 124H600M0 158H600M0 202H600M0 258H600M0 330H600"/>
+            </g>
+            <!-- possible futures -->
+            <g fill="none" stroke-linecap="round">
+              <path id="f1" class="flow" d="M84 296C190 250 300 150 470 78" stroke="#8c7bff" stroke-opacity=".5" stroke-width="1.6"/>
+              <path id="f2" class="flow" d="M84 296C200 270 330 200 512 140" stroke="#8c7bff" stroke-opacity=".5" stroke-width="1.6"/>
+              <path id="f4" class="flow" d="M84 296C210 310 340 320 508 286" stroke="#8c7bff" stroke-opacity=".5" stroke-width="1.6"/>
+              <path id="f5" class="flow" d="M84 296C190 330 300 360 450 346" stroke="#8c7bff" stroke-opacity=".5" stroke-width="1.6"/>
+              <path id="f3" class="flow pick" d="M84 296C220 290 360 262 530 214" stroke="url(#pk)" stroke-width="2.6" filter="url(#gl)"/>
+            </g>
+            <!-- ghost frames at the end of each future -->
+            <g stroke-width="1.4" fill="rgba(4,6,11,.55)">
+              <rect x="445" y="62" width="52" height="32" rx="5" stroke="#8c7bff" stroke-opacity=".55"/>
+              <rect x="486" y="124" width="52" height="32" rx="5" stroke="#8c7bff" stroke-opacity=".55"/>
+              <rect x="482" y="270" width="52" height="32" rx="5" stroke="#8c7bff" stroke-opacity=".55"/>
+              <rect x="424" y="330" width="52" height="32" rx="5" stroke="#8c7bff" stroke-opacity=".55"/>
+              <rect class="pick-frame" x="504" y="198" width="60" height="38" rx="6" stroke="#52e0ff" stroke-width="2" fill="rgba(82,224,255,.14)" filter="url(#gl)"/>
+            </g>
+            <g color="#8c7bff" opacity=".75">
+              <use href="#scene" x="445" y="62" width="52" height="32"/>
+              <use href="#scene" x="486" y="124" width="52" height="32"/>
+              <use href="#scene" x="482" y="270" width="52" height="32"/>
+              <use href="#scene" x="424" y="330" width="52" height="32"/>
+            </g>
+            <g color="#52e0ff"><use href="#scene" x="508" y="201" width="52" height="32"/></g>
+            <!-- travelling points -->
+            <g fill="#fff">
+              <circle r="3" opacity=".8"><animateMotion dur="3.4s" repeatCount="indefinite"><mpath href="#f1"/></animateMotion></circle>
+              <circle r="3" opacity=".8"><animateMotion dur="3.9s" repeatCount="indefinite" begin="-1s"><mpath href="#f2"/></animateMotion></circle>
+              <circle r="3.6"><animateMotion dur="2.8s" repeatCount="indefinite" begin="-.4s"><mpath href="#f3"/></animateMotion></circle>
+              <circle r="3" opacity=".8"><animateMotion dur="3.7s" repeatCount="indefinite" begin="-2s"><mpath href="#f4"/></animateMotion></circle>
+              <circle r="3" opacity=".8"><animateMotion dur="3.2s" repeatCount="indefinite" begin="-1.5s"><mpath href="#f5"/></animateMotion></circle>
+            </g>
+            <!-- agent -->
+            <path d="M84 296 140 262V330Z" fill="rgba(82,224,255,.12)" stroke="rgba(82,224,255,.45)"/>
+            <circle class="pulse" cx="84" cy="296" r="9" fill="none" stroke="#52e0ff" stroke-width="1.5"/>
+            <circle cx="84" cy="296" r="7.5" fill="#fff"/>
+            <g font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" letter-spacing=".08em" fill="#8792a8">
+              <text x="60" y="326">NOW</text>
+              <text x="396" y="40">IMAGINED FUTURES</text>
+              <text x="516" y="256" fill="#52e0ff">CHOSEN</text>
+            </g>
+          </svg>
+          <figcaption><b>Imagine</b><span>Compare</span><b>Act</b><span>inside the loop</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESEARCH ============ -->
+  <section class="section" id="research">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="eyebrow"><i></i>02 · Research</p>
+        <h2>Making world models cheap enough to run live.</h2>
+        <p class="lead">Real-time interaction is both a systems problem and a learning problem. Our first two projects work on each end: how a world model <b>remembers</b> at inference time, and how a visual generator is <b>aligned</b> at training time.</p>
+      </div>
+
+      <div class="research-grid">
+        <!-- Velox -->
+        <a class="card proj-card rv" href="velox/" data-theme-card="velox">
+          <div class="vis" data-ab data-video="https://media.velox-world.com/assets/media/cards/velox.mp4" data-poster="https://media.velox-world.com/assets/media/cards/velox.jpg" data-w="640" data-h="356" role="img" aria-label="A generated scene rendered with dense attention and with Velox, wiping between the two">
+            <canvas width="640" height="356" aria-hidden="true"></canvas>
+            <video muted loop playsinline preload="none" aria-hidden="true"></video>
+            <i class="rule" aria-hidden="true"></i>
+            <div class="tags"><span class="chip"><i class="d" style="--c:#a5afc3"></i>Dense</span><span class="chip"><i class="d" style="--c:#52e0ff"></i>Velox</span></div>
+          </div>
+          <div class="body">
+            <p class="kicker">Velox · Consistent</p>
+            <h3>Spatial memory makes long&#8209;context world models efficient</h3>
+            <p>A training-free attention router. Camera frustum slabs from streaming geometry tell each new region of the video which parts of the past actually matter, so later chunks stop paying for the entire history.</p>
+            <div class="facts">
+              <div class="fact"><b>4.36×</b><small>attention · chunk 48</small></div>
+              <div class="fact"><b>2.43×</b><small>denoising · chunk 48</small></div>
+              <div class="fact"><b>0</b><small>training steps</small></div>
+            </div>
+            <span class="go">Open the Velox project <span class="arr" aria-hidden="true">→</span></span>
+          </div>
+        </a>
+
+        <!-- RPO -->
+        <a class="card proj-card rv" href="rpo/" data-theme-card="rpo" style="--accent: var(--amber); --d:90ms">
+          <div class="vis" data-ab data-video="https://media.velox-world.com/assets/media/cards/rpo.mp4" data-poster="https://media.velox-world.com/assets/media/cards/rpo.jpg" data-w="640" data-h="350" role="img" aria-label="A generated scene from the base model and after RPO, wiping between the two">
+            <canvas width="640" height="350" aria-hidden="true"></canvas>
+            <video muted loop playsinline preload="none" aria-hidden="true"></video>
+            <i class="rule" aria-hidden="true"></i>
+            <div class="tags"><span class="chip"><i class="d" style="--c:#4f8cff"></i>Base</span><span class="chip"><i class="d" style="--c:#ffa347"></i>+ RPO</span></div>
+          </div>
+          <div class="body">
+            <p class="kicker">RPO · Aligned</p>
+            <h3>Routing Policy Optimization for online diffusion RL</h3>
+            <p>Attention routing becomes a discrete policy. Two matched rollouts differ only in their sampled routes, so one reward difference is enough to learn, and inference goes back to dense attention with the original sampler.</p>
+            <div class="facts">
+              <div class="fact"><b>24.1</b><small>GPU-hours · Wan2.2</small></div>
+              <div class="fact"><b>3.1–4.2×</b><small>less than GRPO</small></div>
+              <div class="fact"><b>+3</b><small>HPSv3 · dense eval</small></div>
+            </div>
+            <span class="go">Open the RPO project <span class="arr" aria-hidden="true">→</span></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DIRECTION ============ -->
+  <section class="section" id="direction">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="eyebrow"><i></i>03 · Direction</p>
+        <h2>From efficient parts to agents that can think ahead.</h2>
+      </div>
+      <div class="direction rv">
+        <div class="dir">
+          <p class="step">Step 01</p>
+          <h3>Remember cheaply</h3>
+          <p>Long-horizon spatial memory without an attention bill that grows with every chunk.</p>
+          <a class="by" href="velox/">Velox <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="dir">
+          <p class="step">Step 02</p>
+          <h3>Align cheaply</h3>
+          <p>Reinforcement learning for visual generators at a fraction of the rollout cost.</p>
+          <a class="by" href="rpo/" style="--accent: var(--amber)">RPO <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="dir next">
+          <p class="step">The goal</p>
+          <h3>Close the loop</h3>
+          <p>World models that robots and agents can plan inside, at interactive latency.</p>
+          <span class="by">In progress</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CLOSING ============ -->
+  <section class="closing" aria-labelledby="close-h">
+    <div class="wrap">
+      <h2 id="close-h" class="rv">World models that physical AI can act in.</h2>
+      <p class="lead rv" style="--d:80ms">Preprints for Velox and RPO are headed to arXiv, with code and results to follow. Until then, the project pages hold the visual results.</p>
+      <div class="hero-cta rv" style="--d:160ms">
+        <a class="btn primary" href="velox/">Velox <span class="arr" aria-hidden="true">→</span></a>
+        <a class="btn" href="rpo/">RPO <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="./">
+          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M4.5 6.5 16 26 27.5 6.5" stroke="#52e0ff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9.6 15.2h12.8" stroke="#8c7bff" stroke-width="1.7" stroke-linecap="round" opacity=".7"/>
+            <circle cx="16" cy="26" r="1.9" fill="#fff"/>
+          </svg>
+          Velox <span>World</span>
+        </a>
+        <p class="blurb">A research team building efficient world models for physical AI.</p>
+      </div>
+      <div>
+        <h4>Research</h4>
+        <ul>
+          <li><a href="velox/">Velox: spatial memory</a></li>
+          <li><a href="rpo/">RPO: routing policy optimization</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Releases</h4>
+        <ul>
+          <li>arXiv preprints: coming soon</li>
+          <li>Code and results: coming soon</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Velox World</span>
+      <span>velox-world.com</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/site.js"></script>
+<script src="assets/js/world.js"></script>
+<script src="assets/js/home.js"></script>
+</body>
+</html>

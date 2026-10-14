@@ -1,0 +1,19 @@
+# Velox World
+
+> Velox World is a research team building efficient world models for physical AI: models that learn how the physical world looks, moves and responds to action, and run fast enough for agents to plan and act inside them. Its first two projects work on the two ends of that problem, how a world model remembers at inference time (Velox) and how a visual generator is aligned at training time (RPO). Both preprints are headed to arXiv.
+
+## Projects
+
+- [Velox: Spatial Memory Makes Long-context World Models Efficient](https://velox-world.com/velox/): A training-free attention router for chunked video world models. Camera frustum slabs from streaming geometry softly modulate each layer's own block importance, so every query block attends to a bounded route instead of the whole retained history, and the route is made of whole token blocks that match FlashAttention tiles. Reported on LingBot-Fast-Cam with a single H200: at chunk 48, per-call attention latency falls from about 34.2 ms to 7.8 ms (4.36x) and chunk denoising from about 7.19 s to 2.96 s (2.43x); dense attention is faster for the first few chunks. On all 158 WBench navigation cases the API-free average stays within 0.15 points of dense attention (73.51 against 73.66). The page shows 20 WBench navigation cases rendered with dense attention and with Velox, and the full table of WBench scores. Timings are for the reported asynchronous implementation, not a claim of wall-clock superiority in every setting. Authors: Qiuhong Shen (https://florinshen.github.io/), Shizun Wang (https://littlepure2333.github.io/home/), Xinchao Wang (https://sites.google.com/site/sitexinchaowang/), National University of Singapore.
+- [RPO: Routing Policy Optimization for Online Diffusion Reinforcement Learning](https://velox-world.com/rpo/): Attention routing as a discrete policy. At one denoising level, each query block keeps a random subset of candidate key blocks with Bernoulli probabilities derived from the generator's own query-key affinities. Two matched rollouts differ only in their sampled routes, and their reward difference is the advantage. At inference, dense attention and the original deterministic sampler are restored. On Wan2.2-TI2V-5B it trains with 24.1 H100 GPU-hours, 3.1x less than Flow-GRPO and 4.2x less than DanceGRPO (runs not compute-matched).
+
+## Galleries
+
+- [RPO on Wan2.2-TI2V-5B](https://velox-world.com/rpo/wan2.2/): 61 prompts, base model against RPO, same prompt and same starting noise, with per-prompt HPSv3 scores.
+- [RPO on SD3.5-Medium](https://velox-world.com/rpo/sd3.5/): 64 prompts, base model against RPO, with per-prompt HPSv3 scores.
+
+## Status
+
+- Preprints: arXiv release pending. Code and results: public release planned.
+- Authors: Velox is by Qiuhong Shen, Shizun Wang and Xinchao Wang (National University of Singapore). RPO authors are listed with its preprint.
+- Text prompts used to generate the shown samples are not published on the site; samples are identified by case or prompt number.

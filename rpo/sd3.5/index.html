@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base against RPO · SD3.5-Medium · Velox World</title>
+<meta name="theme-color" content="#04060b">
+<link rel="canonical" href="https://velox-world.com/rpo/sd3.5/">
+<link rel="icon" href="https://media.velox-world.com/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+/* A viewing room: neutral gray everywhere, so the pictures are the only color apart from the two plate colors.
+   A = the base model (blue), B = the model after RPO (orange). */
+:root {
+  --room: #d7d8da;
+  --panel: #e6e7e9;
+  --mat: #c3c5c8;
+  --ink: #17181a;
+  --muted: #50555c;
+  --line: #b4b7bc;
+  --a: #256abf;
+  --b: #c9501c;
+  --tagink: #ffffff;
+  --engraved: "Copperplate", "Copperplate Gothic Light", "Avenir Next Condensed", "Arial Narrow", sans-serif;
+  --cond: "Avenir Next Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --sans: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --serif: Charter, "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --room: #202124;
+    --panel: #2b2d31;
+    --mat: #151618;
+    --ink: #ececed;
+    --muted: #a2a6ad;
+    --line: #43464c;
+    --a: #3987e5;
+    --b: #d95926;
+    --tagink: #151618;
+  }
+}
+* { box-sizing: border-box; }
+html { background: var(--room); }
+body {
+  margin: 0; background: var(--room); color: var(--ink);
+  font-family: var(--sans); font-size: 15px; line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 22px; }
+button, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+img { -webkit-user-drag: none; user-select: none; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Engraved labels: Copperplate sets lower case as small capitals, so labels are written in normal case. */
+.eng { font-family: var(--engraved); letter-spacing: 0.07em; font-size: 13.5px; line-height: 1.2; color: var(--muted); }
+.tag {
+  display: inline-block; min-width: 22px; padding: 3px 6px 2px; text-align: center;
+  font-family: var(--cond); font-weight: 700; font-size: 14px; line-height: 1; color: var(--tagink);
+}
+.tag.a { background: var(--a); }
+.tag.b { background: var(--b); }
+.key { display: inline-block; width: 9px; height: 9px; margin-right: 6px; vertical-align: 0; }
+.key.a { background: var(--a); }
+.key.b { background: var(--b); }
+
+/* ---------- masthead: the comparator is the opening ---------- */
+.mast { padding: 26px 0 8px; }
+.eyebrow { margin: 0 0 14px; }
+.bench { display: grid; grid-template-columns: minmax(0, 580px) minmax(0, 1fr); gap: 34px; align-items: start; }
+h1 {
+  margin: 0; font-family: var(--cond); font-weight: 700; letter-spacing: -0.005em;
+  font-size: clamp(38px, 4.6vw, 68px); line-height: 0.95;
+}
+h1 span { color: var(--muted); font-weight: 500; }
+.plates { margin: 22px 0 0; display: grid; gap: 10px; }
+.plate { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; }
+.plate .who { display: flex; align-items: baseline; gap: 10px; min-width: 0; flex-wrap: wrap; }
+.plate .name { font-family: var(--cond); font-weight: 600; font-size: 25px; line-height: 1; }
+.plate .note { color: var(--muted); font-size: 13.5px; }
+.plate .val { font-size: 25px; font-weight: 600; line-height: 1; }
+.plate .rail { grid-column: 2 / 4; }
+.rail { height: 10px; position: relative; overflow: hidden; }
+.rail.a { background: color-mix(in srgb, var(--a) 20%, var(--panel)); }
+.rail.b { background: color-mix(in srgb, var(--b) 20%, var(--panel)); }
+.rail i { position: absolute; inset: 0 auto 0 0; width: var(--w, 0%); border-radius: 0 3px 3px 0; }
+.rail.a i { background: var(--a); }
+.rail.b i { background: var(--b); }
+.meant { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+.headline { margin: 20px 0 0; font-size: 19px; line-height: 1.35; max-width: 34em; }
+.headline b { font-weight: 600; }
+.lede { margin: 12px 0 0; max-width: 40em; color: var(--muted); }
+.lede b { color: var(--ink); font-weight: 600; }
+
+/* ---------- the stage: two plates on top of each other, a wipe line, and a blink ---------- */
+.stage {
+  position: relative; aspect-ratio: 1 / 1; background: var(--mat); overflow: hidden;
+  --x: 50%; touch-action: pan-y; cursor: ew-resize;
+}
+.stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.stage .pb { clip-path: inset(0 0 0 var(--x)); }
+.stage[data-mode="a"] .pb { clip-path: inset(0 0 0 100%); }
+.stage[data-mode="b"] .pb { clip-path: none; }
+.stage .rule {
+  position: absolute; top: 0; bottom: 0; left: var(--x); width: 2px; margin-left: -1px;
+  background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+.stage .grip {
+  position: absolute; top: 50%; left: var(--x); width: 38px; height: 38px; margin: -19px 0 0 -19px;
+  border-radius: 50%; border: 2px solid #fff; background: #17181a; color: #fff; padding: 0;
+  display: grid; place-items: center; cursor: ew-resize; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+.stage .grip svg { width: 20px; height: 20px; display: block; }
+.stage[data-mode="a"] .rule, .stage[data-mode="b"] .rule,
+.stage[data-mode="a"] .grip, .stage[data-mode="b"] .grip { display: none; }
+.stage .corner { position: absolute; top: 8px; display: flex; align-items: center; gap: 6px; pointer-events: none; }
+.stage .corner.ca { left: 8px; }
+.stage .corner.cb { right: 8px; }
+.stage .corner .sc {
+  font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums;
+  background: rgba(23, 24, 26, 0.78); color: #fff; padding: 2px 6px;
+}
+.stage[data-mode="a"] .corner.cb, .stage[data-mode="b"] .corner.ca { opacity: 0.28; }
+.stage[data-mode="a"], .stage[data-mode="b"] { cursor: default; }
+.stage:focus { outline: none; }
+.stagebar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 8px; }
+.seg { display: inline-flex; border: 1px solid var(--line); background: var(--panel); }
+.seg button { border: 0; background: transparent; padding: 5px 11px; font-size: 13.5px; line-height: 1.3; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--room); }
+.seg button.sa[aria-pressed="true"] { background: var(--a); color: var(--tagink); }
+.seg button.sb[aria-pressed="true"] { background: var(--b); color: var(--tagink); }
+.plain { border: 1px solid var(--line); background: var(--panel); padding: 5px 11px; font-size: 13.5px; line-height: 1.3; }
+.featured { margin: 10px 0 0; }
+.featured .cap, .card .cap, .scope .cap { font-family: var(--serif); font-style: italic; font-size: 16px; line-height: 1.4; }
+.featured .why { display: block; margin-bottom: 3px; }
+
+/* ---------- gain per prompt ---------- */
+.gains { margin: 26px 0 0; max-width: 860px; }
+.gains h2 { margin: 0 0 2px; font-family: var(--cond); font-weight: 600; font-size: 22px; line-height: 1.1; }
+.gains .sub { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
+.plot { position: relative; height: 168px; margin: 0 0 4px 44px; }
+.plot .grid { position: absolute; left: 0; right: 0; height: 1px; background: var(--line); }
+.plot .grid.zero { background: var(--muted); }
+.plot .grid span { position: absolute; right: 100%; top: -9px; margin-right: 8px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.plot .bars { position: absolute; inset: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+.plot .slot { position: relative; border: 0; padding: 0; background: transparent; min-width: 0; }
+.plot .slot i { position: absolute; left: 50%; width: clamp(3px, 58%, 14px); transform: translateX(-50%); min-height: 1px; }
+.plot .slot.up i { background: var(--b); border-radius: 4px 4px 0 0; }
+.plot .slot.down i { background: var(--a); border-radius: 0 0 4px 4px; }
+.plot .slot:hover, .plot .slot:focus-visible { background: color-mix(in srgb, var(--ink) 9%, transparent); outline: none; }
+.plot .slot:focus-visible { box-shadow: inset 0 0 0 2px var(--ink); }
+.axisnote { display: flex; flex-wrap: wrap; gap: 4px 18px; justify-content: space-between; margin: 6px 0 0 44px; color: var(--muted); font-size: 13px; }
+.legend { display: flex; gap: 16px; }
+.tip {
+  position: fixed; z-index: 30; pointer-events: none; display: none; max-width: 300px;
+  background: var(--ink); color: var(--room); padding: 8px 10px 9px; font-size: 13px; line-height: 1.35;
+}
+.tip b { display: block; font-size: 17px; font-weight: 600; line-height: 1.2; }
+.tip .row { display: block; opacity: 0.86; }
+.tip .p { display: block; margin-top: 4px; font-family: var(--serif); font-style: italic; opacity: 0.86; }
+
+/* ---------- sticky controls: one row, above everything it filters ---------- */
+.deck {
+  position: sticky; top: 0; z-index: 10; background: var(--room); margin-top: 26px;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.deck .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; padding-top: 9px; padding-bottom: 9px; }
+.ctl { display: flex; align-items: center; gap: 8px; }
+select { background: var(--panel); border: 1px solid var(--line); padding: 5px 8px; font-size: 13.5px; }
+.count { margin-left: auto; color: var(--muted); font-size: 13.5px; }
+
+/* ---------- one card per prompt ---------- */
+#cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(var(--card, 500px), 100%), 1fr)); gap: 18px; padding-top: 18px; padding-bottom: 10px; }
+.card { background: var(--panel); min-width: 0; scroll-margin-top: calc(var(--deck, 60px) + 12px); }
+.card.hit { box-shadow: 0 0 0 2px var(--ink); }
+#cards[data-size="l"] .card { width: 100%; max-width: 1040px; margin: 0 auto; }
+.card header { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 11px 12px 10px; }
+.card .no { font-family: var(--engraved); letter-spacing: 0.05em; font-size: 14px; line-height: 1.5; color: var(--muted); white-space: nowrap; }
+.card .cap { margin: 0; overflow-wrap: anywhere; }
+.card .gain { text-align: right; white-space: nowrap; font-size: 19px; font-weight: 600; line-height: 1.2; }
+.card .gain small { display: block; font-size: 11.5px; font-weight: 400; color: var(--muted); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--room); }
+.shot { margin: 0; min-width: 0; background: var(--mat); position: relative; }
+.shot button { display: block; width: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; }
+.shot img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: contain; }
+.shot figcaption { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 8px; background: var(--panel); font-size: 13.5px; }
+.shot figcaption .who { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card .stage { cursor: zoom-in; }
+.empty { grid-column: 1 / -1; background: var(--panel); padding: 26px 20px; }
+.empty p { margin: 0 0 12px; }
+
+.foot { padding: 14px 22px 40px; color: var(--muted); font-size: 13px; }
+.foot p { margin: 0 0 4px; max-width: 86em; }
+
+/* ---------- large view ---------- */
+dialog.scope {
+  border: 0; padding: 0; margin: 0; width: 100vw; height: 100vh; max-width: none; max-height: none;
+  background: var(--room); color: var(--ink);
+}
+dialog.scope::backdrop { background: var(--room); }
+.scope .lay { display: grid; grid-template-columns: auto minmax(300px, 420px); gap: 26px; height: 100%; padding: 18px 22px; justify-content: center; align-items: start; }
+.scope .stage { width: min(calc(100vh - 36px), calc(100vw - 500px), 1024px); }
+.scope .side { display: grid; gap: 14px; align-content: start; min-width: 0; max-height: calc(100vh - 36px); overflow: auto; padding-right: 2px; }
+.scope .side .seg { justify-self: start; }
+.scope .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.scope .no { font-family: var(--cond); font-weight: 600; font-size: 30px; line-height: 1; }
+.scope .no small { font-family: var(--sans); font-weight: 400; font-size: 13.5px; color: var(--muted); margin-left: 8px; }
+.scope .cap { margin: 0; font-size: 18px; overflow-wrap: anywhere; }
+.scope table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.scope td { padding: 7px 6px; border-bottom: 1px solid var(--line); }
+.scope td:last-child { text-align: right; }
+.scope tr.sum td { font-weight: 600; border-bottom: 0; }
+.scope .keys { margin: 0; color: var(--muted); font-size: 13px; }
+.scope .keys kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--line); padding: 0 4px; background: var(--panel); color: var(--ink); }
+.scope .nav { display: flex; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 1020px) {
+  .bench { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .bench .stagebox { max-width: 580px; }
+  .scope .lay { grid-template-columns: minmax(0, 1fr); overflow: auto; }
+  .scope .stage { width: min(100%, calc(100vh - 36px)); }
+  .scope .side { max-height: none; }
+}
+@media (max-width: 760px) {
+  .deck { position: static; }
+}
+@media (max-width: 560px) {
+  .wrap { padding: 0 14px; }
+  .plot { margin-left: 38px; }
+  .axisnote { margin-left: 0; }
+  .count { margin-left: 0; }
+}
+</style>
+<style id="vw-theme">
+/* Velox World integration: the site's palette, type and header around the original comparison layout. */
+:root {
+  color-scheme: dark;
+  --room: #04060b; --panel: #0b0f19; --mat: #070a11;
+  --ink: #eaeef7; --muted: #8e99af; --line: rgba(148, 170, 215, 0.22);
+  --a: #4f8cff; --b: #ffa347; --tagink: #04060b;
+  --engraved: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --cond: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.eng { text-transform: uppercase; letter-spacing: 0.14em; font-size: 11.5px; }
+h1 { letter-spacing: -0.045em; }
+.vw-bar { display: flex; align-items: center; gap: 20px; padding: 0 22px; height: 56px; border-bottom: 1px solid var(--line); background: var(--room); }
+.vw-brand { display: inline-flex; align-items: center; gap: 10px; font: 700 12.5px/1 var(--mono); letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.vw-brand span { color: var(--muted); font-weight: 500; }
+.vw-brand svg { width: 24px; height: 24px; }
+.vw-crumb { color: var(--muted); font: 500 11.5px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vw-crumb a { color: var(--muted); text-decoration: none; }
+.vw-crumb a:hover { color: var(--ink); }
+.vw-nav { margin-left: auto; display: flex; gap: 18px; font-size: 14px; white-space: nowrap; }
+.vw-nav a { color: var(--muted); text-decoration: none; }
+.vw-nav a:hover { color: var(--ink); }
+@media (max-width: 560px) { .vw-bar { padding: 0 14px; gap: 12px; } .vw-crumb { display: none; } }
+</style>
+
+</head>
+<body>
+<header class="vw-bar">
+  <a class="vw-brand" href="../../" aria-label="Velox World — home">
+    <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><defs><linearGradient id="vwg" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse"><stop stop-color="#52e0ff"/><stop offset="1" stop-color="#8c7bff"/></linearGradient></defs><path d="M4.5 6.5 16 26 27.5 6.5" stroke="url(#vwg)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.6 15.2h12.8" stroke="url(#vwg)" stroke-width="1.7" stroke-linecap="round" opacity=".6"/><circle cx="16" cy="26" r="1.9" fill="#fff"/></svg>
+    Velox <span>World</span>
+  </a>
+  <span class="vw-crumb"><a href="../">RPO</a> / SD3.5 image gallery</span>
+  <nav class="vw-nav" aria-label="Site"><a href="../">&larr; RPO project</a></nav>
+</header>
+
+
+<div class="wrap">
+  <header class="mast">
+    <p class="eyebrow eng" id="eyebrow"></p>
+    <div class="bench">
+      <div class="stagebox">
+        <div class="stage" id="heroStage" data-mode="wipe"></div>
+        <div class="stagebar">
+          <div class="seg" role="group" aria-label="What the picture shows" id="heroModes">
+            <button type="button" class="sa" data-mode="a" aria-pressed="false">A only</button>
+            <button type="button" data-mode="wipe" aria-pressed="true">Wipe</button>
+            <button type="button" class="sb" data-mode="b" aria-pressed="false">B only</button>
+          </div>
+          <button type="button" class="plain" id="heroOpen">Open large view</button>
+        </div>
+        <p class="featured" id="featured"></p>
+      </div>
+      <div class="readout">
+        <h1>Base <span>against</span> RPO</h1>
+        <div class="plates" id="plates"></div>
+        <p class="meant" id="meant"></p>
+        <p class="headline" id="headline"></p>
+        <p class="lede" id="lede"></p>
+        <section class="gains" aria-labelledby="hGain">
+          <h2 id="hGain">Gain per prompt</h2>
+          <p class="sub" id="gainSub"></p>
+          <div class="plot" id="plot"></div>
+          <div class="axisnote">
+            <span>Each bar is one prompt · HPSv3 points</span>
+            <span class="legend"><span><i class="key b"></i>B scores higher</span><span><i class="key a"></i>A scores higher</span></span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </header>
+</div>
+
+<div class="deck" id="deck">
+  <div class="wrap">
+    <div class="ctl"><label class="eng" for="selSort">Sort</label>
+      <select id="selSort">
+        <option value="order">Prompt number</option>
+        <option value="gainDesc">Largest gain first</option>
+        <option value="gainAsc">Smallest gain first</option>
+        <option value="baseAsc">Lowest base score first</option>
+        <option value="bDesc">Highest RPO score first</option>
+      </select>
+    </div>
+    <div class="ctl"><span class="eng">Show</span><div class="seg" role="group" aria-label="Which prompts" id="segShow">
+      <button type="button" data-v="all" aria-pressed="true">All</button>
+      <button type="button" data-v="b" aria-pressed="false">B higher</button>
+      <button type="button" data-v="a" aria-pressed="false">A higher</button>
+    </div></div>
+    <div class="ctl"><span class="eng">Size</span><div class="seg" role="group" aria-label="Picture size" id="segSize">
+      <button type="button" data-v="s" aria-pressed="false">Small</button>
+      <button type="button" data-v="m" aria-pressed="true">Medium</button>
+      <button type="button" data-v="l" aria-pressed="false">Large</button>
+    </div></div>
+    <div class="ctl"><span class="eng">View</span><div class="seg" role="group" aria-label="How a pair is shown" id="segView">
+      <button type="button" data-v="pair" aria-pressed="true">Side by side</button>
+      <button type="button" data-v="wipe" aria-pressed="false">Wipe</button>
+    </div></div>
+    <span class="count" id="count"></span>
+  </div>
+</div>
+
+<main class="wrap" id="cards"></main>
+<footer class="foot wrap" id="foot"></footer>
+
+<dialog class="scope" id="scope" aria-label="Large view">
+  <div class="lay">
+    <div class="stage" id="scopeStage" data-mode="wipe"></div>
+    <div class="side">
+      <div class="top"><span class="no" id="scopeNo"></span><button type="button" class="plain" id="scopeClose">Close</button></div>
+      <p class="cap" id="scopeCap"></p>
+      <div class="seg" role="group" aria-label="What the picture shows" id="scopeModes">
+        <button type="button" class="sa" data-mode="a" aria-pressed="false">A only</button>
+        <button type="button" data-mode="wipe" aria-pressed="true">Wipe</button>
+        <button type="button" class="sb" data-mode="b" aria-pressed="false">B only</button>
+      </div>
+      <table><tbody id="scopeRows"></tbody></table>
+      <div class="nav">
+        <button type="button" class="plain" id="scopePrev">Previous prompt</button>
+        <button type="button" class="plain" id="scopeNext">Next prompt</button>
+      </div>
+      <p class="keys"><kbd>Space</kbd> flips A and B in place · <kbd>W</kbd> wipe · <kbd>←</kbd> <kbd>→</kbd> prompt · <kbd>Esc</kbd> close</p>
+    </div>
+  </div>
+</dialog>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.COMPARE;
+  if (!D || !D.items || !D.items.length) {
+    document.body.textContent = "data.js did not load. Keep index.html in the same folder as data.js and the image folders, then reload.";
+    return;
+  }
+  var M = D.meta, items = D.items.slice().sort(function (p, q) { return p.i - q.i; });
+  if (items.some(function (it, n) { return it.i !== n; })) { document.body.textContent = "data.js is not the one this page was built with (prompt numbers are not 0, 1, 2, ...)."; return; }
+  var state = { sort: "order", show: "all", size: "m", view: "pair" };
+  var CARD = { s: "330px", m: "500px", l: "900px" };
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- small helpers ----------
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function f2(v) { return v.toFixed(2).replace("-", "−"); }
+  function sg(v) { return (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2); }
+  function mean(a) { var s = 0; for (var i = 0; i < a.length; i++) s += a[i]; return s / a.length; }
+  function pad(i) { return ("000" + i).slice(-4); }
+  function src(side, i) { return "https://media.velox-world.com/rpo/sd3.5/" + M[side].dir + "/" + pad(i) + "." + M.ext; }
+  function gainOf(it) { return it.b - it.a; }
+  function press(group, attr, value) {
+    Array.prototype.forEach.call(group.querySelectorAll("button"), function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute(attr) === value));
+    });
+  }
+
+  // ---------- numbers ----------
+  var meanA = mean(items.map(function (it) { return it.a; })), meanB = mean(items.map(function (it) { return it.b; }));
+  var higher = items.filter(function (it) { return it.b > it.a; }).length;
+  var railMax = Math.max(1, Math.ceil(Math.max(meanA, meanB) + 0.5));
+  function railW(v) { return Math.max(0, Math.min(100, 100 * v / railMax)).toFixed(1) + "%"; }
+
+  // ---------- the stage ----------
+  var GRIP = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5 3 10l5 5M12 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function buildStage(stage, interactive) {
+    stage.textContent = "";
+    var a = el("img", "pa"), b = el("img", "pb");
+    a.decoding = b.decoding = "async"; a.draggable = b.draggable = false;
+    stage.appendChild(a); stage.appendChild(b);
+    stage.appendChild(el("span", "rule"));
+    var ca = el("span", "corner ca"), cb = el("span", "corner cb");
+    ca.appendChild(el("span", "tag a", "A")); ca.appendChild(el("span", "sc sa"));
+    cb.appendChild(el("span", "sc sb")); cb.appendChild(el("span", "tag b", "B"));
+    stage.appendChild(ca); stage.appendChild(cb);
+    if (!interactive) return;
+    var grip = el("button", "grip"); grip.type = "button"; grip.innerHTML = GRIP;
+    grip.setAttribute("role", "slider"); grip.setAttribute("aria-label", "Wipe position: A on the left, B on the right");
+    grip.setAttribute("aria-valuemin", "0"); grip.setAttribute("aria-valuemax", "100"); grip.setAttribute("aria-valuenow", "50");
+    stage.appendChild(grip); stage.tabIndex = -1;
+    var dragging = false;
+    function fromEvent(e) { var r = stage.getBoundingClientRect(); setX(stage, 100 * (e.clientX - r.left) / r.width); }
+    stage.addEventListener("pointerdown", function (e) {
+      if (stage.dataset.mode !== "wipe" || e.button > 0) return;
+      dragging = true; try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+      fromEvent(e); e.preventDefault();
+    });
+    stage.addEventListener("pointermove", function (e) { if (dragging) fromEvent(e); });
+    ["pointerup", "pointercancel"].forEach(function (t) { stage.addEventListener(t, function () { dragging = false; }); });
+    grip.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      setX(stage, parseFloat(stage.style.getPropertyValue("--x") || "50") + (e.key === "ArrowLeft" ? -4 : 4));
+      e.preventDefault(); e.stopPropagation();
+    });
+  }
+  function setX(stage, x) {
+    x = Math.max(0, Math.min(100, x));
+    stage.style.setProperty("--x", x.toFixed(2) + "%");
+    var grip = stage.querySelector(".grip"); if (grip) grip.setAttribute("aria-valuenow", String(Math.round(x)));
+  }
+  function loadStage(stage, it) {
+    var a = stage.querySelector(".pa"), b = stage.querySelector(".pb");
+    a.src = src("a", it.i); b.src = src("b", it.i);
+    a.alt = "A, base model, prompt " + it.i; b.alt = "B, RPO, prompt " + it.i;
+    stage.querySelector(".sa").textContent = f2(it.a); stage.querySelector(".sb").textContent = f2(it.b);
+  }
+  function setMode(stage, group, mode) {
+    var grip = stage.querySelector(".grip");
+    if (mode !== "wipe" && grip && document.activeElement === grip) stage.focus({ preventScroll: true });   // the grip is about to hide
+    stage.dataset.mode = mode; if (group) press(group, "data-mode", mode);
+  }
+
+  // ---------- masthead ----------
+  var S = M.settings;
+  document.getElementById("eyebrow").textContent = M.a.name + " · " + items.length + " validation prompts · HPSv3";
+  var plates = document.getElementById("plates");
+  [["a", "A", meanA], ["b", "B", meanB]].forEach(function (pp) {
+    var side = pp[0], row = el("div", "plate"), who = el("div", "who");
+    row.appendChild(el("span", "tag " + side, pp[1]));
+    who.appendChild(el("span", "name", M[side].name)); who.appendChild(el("span", "note", M[side].note));
+    row.appendChild(who); row.appendChild(el("span", "val", f2(pp[2])));
+    var rail = el("div", "rail " + side); rail.appendChild(el("i")).style.setProperty("--w", railW(pp[2]));
+    row.appendChild(rail); plates.appendChild(row);
+  });
+  document.getElementById("meant").textContent = "Mean HPSv3 over the " + items.length + " prompts. Higher is better.";
+  var head = document.getElementById("headline");
+  head.appendChild(el("b", null, "B scores higher on " + higher + " of " + items.length + " prompts."));
+  head.appendChild(document.createTextNode(" The mean gain is " + sg(meanB - meanA) + "."));
+  var lede = document.getElementById("lede");
+  lede.appendChild(document.createTextNode("A pair shares its prompt and its starting noise. "));
+  lede.appendChild(el("b", null, "A"));
+  lede.appendChild(document.createTextNode(" is the base model. "));
+  lede.appendChild(el("b", null, "B"));
+  lede.appendChild(document.createTextNode(" is the same model after RPO fine-tuning. " + S.steps + " sampling steps, " + S.width + " × " + S.height +
+    ", no classifier-free guidance. Drag across the picture to wipe between the two."));
+
+  var byGain = items.slice().sort(function (p, q) { return gainOf(p) - gainOf(q); });
+  var median = byGain[Math.floor(byGain.length / 2)];
+  var featured = items[M.featured] || median;      // data.js can name the opening pair; otherwise the median gain
+  var heroStage = document.getElementById("heroStage"), heroModes = document.getElementById("heroModes");
+  buildStage(heroStage, true); loadStage(heroStage, featured);
+  var feat = document.getElementById("featured");
+  feat.appendChild(el("span", "why eng", "Prompt " + featured.i + (featured === median ? " · the median gain, " : " · gain ") + sg(gainOf(featured))));
+  if (featured.prompt) feat.appendChild(el("span", "cap", featured.prompt));
+  heroModes.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) setMode(heroStage, heroModes, b.dataset.mode); });
+  document.getElementById("heroOpen").addEventListener("click", function () { openScope(featured.i); });
+  if (!reduce) {                         // one move on arrival: the line sweeps in from the right and shows what it does
+    setX(heroStage, 100);
+    var t0 = null;
+    var sweep = function (t) {
+      if (t0 === null) t0 = t;
+      var u = Math.min(1, (t - t0) / 950), e = 1 - Math.pow(1 - u, 3);
+      setX(heroStage, 100 - 50 * e);
+      if (u < 1) requestAnimationFrame(sweep);
+    };
+    var go = function () { requestAnimationFrame(sweep); };
+    var hb = heroStage.querySelector(".pb");
+    if (hb.complete) go(); else { hb.addEventListener("load", go, { once: true }); hb.addEventListener("error", go, { once: true }); }
+  }
+
+  // ---------- gain per prompt ----------
+  var plot = document.getElementById("plot"), tip = document.getElementById("tip");
+  var gAll = items.map(gainOf);
+  var gMax = Math.max(0.5, Math.max.apply(null, gAll)), gMin = Math.min(0, Math.min.apply(null, gAll));
+  var step = [0.5, 1, 2, 5, 10].filter(function (s) { return (gMax - gMin) / s <= 5; })[0] || 10;
+  var top = Math.ceil(gMax / step) * step, bot = Math.floor(gMin / step) * step;
+  function yPct(v) { return 100 * (top - v) / (top - bot); }
+  (function () {
+    for (var v = bot; v <= top + 1e-9; v += step) {
+      var g = el("div", "grid" + (Math.abs(v) < 1e-9 ? " zero" : "")); g.style.top = yPct(v) + "%";
+      g.appendChild(el("span", "num", Math.abs(v) < 1e-9 ? "0" : sg(v).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1"))); plot.appendChild(g);
+    }
+    var bars = el("div", "bars");
+    byGain.slice().reverse().forEach(function (it) {
+      var g = gainOf(it), b = el("button", "slot " + (g >= 0 ? "up" : "down")), bar = el("i");
+      b.type = "button"; b.dataset.i = it.i;
+      b.setAttribute("aria-label", "Prompt " + it.i + ": gain " + sg(g) + ", A " + f2(it.a) + ", B " + f2(it.b) + ". Go to this prompt.");
+      if (g >= 0) { bar.style.top = yPct(g) + "%"; bar.style.height = (yPct(0) - yPct(g)) + "%"; }
+      else { bar.style.top = yPct(0) + "%"; bar.style.height = (yPct(g) - yPct(0)) + "%"; }
+      b.appendChild(bar); bars.appendChild(b);
+    });
+    plot.appendChild(bars);
+    document.getElementById("gainSub").textContent =
+      "B minus A for each of the " + items.length + " prompts, largest first. Point at a bar for its numbers; click it to go to that prompt.";
+  })();
+  function showTip(b) {
+    var it = items[+b.dataset.i];
+    tip.textContent = "";
+    tip.appendChild(el("b", "num", sg(gainOf(it))));
+    tip.appendChild(el("span", "row num", "A " + f2(it.a) + "  →  B " + f2(it.b) + "  ·  prompt " + it.i));
+    if (it.prompt) tip.appendChild(el("span", "p", it.prompt.length > 150 ? it.prompt.slice(0, 147) + "…" : it.prompt));
+    tip.style.display = "block";
+    var r = b.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    var x = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+    var y = r.top - h - 8; if (y < 8) y = Math.min(window.innerHeight - h - 8, r.bottom + 8);
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  function hideTip() { tip.style.display = "none"; }
+  plot.addEventListener("pointerover", function (e) { var b = e.target.closest(".slot"); if (b) showTip(b); });
+  plot.addEventListener("pointerout", function (e) { if (e.target.closest(".slot")) hideTip(); });
+  plot.addEventListener("focusin", function (e) { var b = e.target.closest(".slot"); if (b) showTip(b); });
+  plot.addEventListener("focusout", hideTip);
+  window.addEventListener("scroll", hideTip, { passive: true });
+  plot.addEventListener("click", function (e) {
+    var b = e.target.closest(".slot"); if (!b) return;
+    var i = +b.dataset.i;
+    if (!document.getElementById("p" + i)) { state.show = "all"; press(document.getElementById("segShow"), "data-v", "all"); renderCards(); }
+    var card = document.getElementById("p" + i); if (!card) return;
+    hideTip();
+    card.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    card.classList.add("hit"); setTimeout(function () { card.classList.remove("hit"); }, 2200);
+  });
+
+  // ---------- cards ----------
+  var cards = document.getElementById("cards"), view = [];
+  function shot(it, side) {
+    var fig = el("figure", "shot"), btn = el("button"), img = el("img");
+    btn.type = "button"; btn.dataset.open = it.i;
+    btn.setAttribute("aria-label", "Open prompt " + it.i + " in the large view");
+    img.loading = "lazy"; img.decoding = "async"; img.width = S.width; img.height = S.height;
+    img.src = src(side, it.i);
+    img.alt = (side === "a" ? "A, base model, prompt " : "B, RPO, prompt ") + it.i;
+    btn.appendChild(img); fig.appendChild(btn);
+    var cap = el("figcaption"), who = el("span", "who");
+    who.appendChild(el("i", "key " + side)); who.appendChild(document.createTextNode(side === "a" ? "A base" : "B RPO"));
+    cap.appendChild(who); cap.appendChild(el("span", "num", f2(it[side])));
+    fig.appendChild(cap);
+    return fig;
+  }
+  function card(it) {
+    var c = el("article", "card"), h = el("header");
+    c.id = "p" + it.i;
+    h.appendChild(el("span", "no", "No " + it.i));
+    if (it.prompt) h.appendChild(el("p", "cap", it.prompt));
+    var g = el("div", "gain num", sg(gainOf(it))); g.appendChild(el("small", null, "gain")); h.appendChild(g);
+    c.appendChild(h);
+    if (state.view === "wipe") {
+      var st = el("div", "stage"); st.dataset.mode = "wipe"; st.dataset.open = it.i;
+      st.tabIndex = 0; st.setAttribute("role", "button");
+      st.setAttribute("aria-label", "Prompt " + it.i + ": move across to wipe between A and B; press Enter for the large view");
+      buildStage(st, false);
+      var imgs = st.querySelectorAll("img"); imgs[0].loading = imgs[1].loading = "lazy";
+      loadStage(st, it); c.appendChild(st);
+    } else {
+      var pair = el("div", "pair"); pair.appendChild(shot(it, "a")); pair.appendChild(shot(it, "b")); c.appendChild(pair);
+    }
+    return c;
+  }
+  function renderCards() {
+    view = items.filter(function (it) {
+      var g = gainOf(it);
+      return state.show === "all" || (state.show === "b" ? g > 0 : g < 0);
+    });
+    var key = { gainDesc: function (it) { return -gainOf(it); }, gainAsc: gainOf,
+                baseAsc: function (it) { return it.a; }, bDesc: function (it) { return -it.b; } }[state.sort];
+    if (key) view.sort(function (p, q) { return key(p) - key(q) || p.i - q.i; });
+    cards.textContent = "";
+    cards.style.setProperty("--card", CARD[state.size]); cards.dataset.size = state.size;
+    if (!view.length) {
+      var e = el("div", "empty");
+      e.appendChild(el("p", null, state.show === "a" ? "A does not score higher on any prompt." : "No prompt matches."));
+      var b = el("button", "plain", "Show all prompts"); b.type = "button"; b.dataset.reset = "1"; e.appendChild(b); cards.appendChild(e);
+    } else {
+      var frag = document.createDocumentFragment(); view.forEach(function (it) { frag.appendChild(card(it)); }); cards.appendChild(frag);
+    }
+    document.getElementById("count").textContent = view.length + " of " + items.length + " prompts";
+  }
+  cards.addEventListener("click", function (e) {
+    if (e.target.closest("[data-reset]")) { state.show = "all"; press(document.getElementById("segShow"), "data-v", "all"); renderCards(); return; }
+    var o = e.target.closest("[data-open]"); if (o) openScope(+o.dataset.open);
+  });
+  cards.addEventListener("keydown", function (e) {
+    var o = e.target.closest(".stage[data-open]"); if (o && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openScope(+o.dataset.open); }
+  });
+  cards.addEventListener("pointermove", function (e) {          // wipe view: the line follows the pointer
+    var st = e.target.closest(".card .stage"); if (!st) return;
+    var r = st.getBoundingClientRect(); setX(st, 100 * (e.clientX - r.left) / r.width);
+  });
+
+  // ---------- controls ----------
+  function bindSeg(id, prop) {
+    var g = document.getElementById(id);
+    g.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; state[prop] = b.dataset.v; press(g, "data-v", b.dataset.v); renderCards(); });
+  }
+  bindSeg("segShow", "show"); bindSeg("segSize", "size"); bindSeg("segView", "view");
+  document.getElementById("selSort").addEventListener("change", function (e) { state.sort = e.target.value; renderCards(); });
+  var deck = document.getElementById("deck");
+  function deckH() { document.documentElement.style.setProperty("--deck", deck.offsetHeight + "px"); }
+  window.addEventListener("resize", deckH);
+
+  // ---------- large view ----------
+  var scope = document.getElementById("scope"), scopeStage = document.getElementById("scopeStage"), scopeModes = document.getElementById("scopeModes");
+  var sc = { i: 0 };
+  buildStage(scopeStage, true);
+  function scopeList() { return view.some(function (it) { return it.i === sc.i; }) ? view : items; }
+  function scopeShow() {
+    var it = items[sc.i], rows = document.getElementById("scopeRows"), list = scopeList(), at = list.indexOf(it);
+    loadStage(scopeStage, it);
+    var no = document.getElementById("scopeNo"); no.textContent = "Prompt " + it.i;
+    no.appendChild(el("small", null, (at + 1) + " of " + list.length));
+    document.getElementById("scopeCap").textContent = it.prompt;
+    rows.textContent = "";
+    [["a", "A · " + M.a.name, f2(it.a)], ["b", "B · " + M.b.name.replace(/^\+\s*/, ""), f2(it.b)]].forEach(function (c) {
+      var tr = el("tr"), td = el("td"); td.appendChild(el("i", "key " + c[0])); td.appendChild(document.createTextNode(c[1]));
+      tr.appendChild(td); tr.appendChild(el("td", "num", c[2])); rows.appendChild(tr);
+    });
+    var sum = el("tr", "sum"); sum.appendChild(el("td", null, "Gain")); sum.appendChild(el("td", "num", sg(gainOf(it)))); rows.appendChild(sum);
+    [list[at - 1], list[at + 1]].forEach(function (nb) { if (nb) { new Image().src = src("a", nb.i); new Image().src = src("b", nb.i); } });
+  }
+  function openScope(i) {
+    sc.i = i;
+    setMode(scopeStage, scopeModes, "wipe"); setX(scopeStage, 50); scopeShow();
+    if (!scope.open) scope.showModal();
+    scopeStage.focus({ preventScroll: true });
+  }
+  function scopeMove(d) {
+    var list = scopeList(), at = list.indexOf(items[sc.i]), nb = list[at + d];
+    if (nb) { sc.i = nb.i; scopeShow(); }
+  }
+  scopeModes.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) setMode(scopeStage, scopeModes, b.dataset.mode); });
+  document.getElementById("scopePrev").addEventListener("click", function () { scopeMove(-1); });
+  document.getElementById("scopeNext").addEventListener("click", function () { scopeMove(1); });
+  document.getElementById("scopeClose").addEventListener("click", function () { scope.close(); });
+  document.addEventListener("keydown", function (e) {
+    if (!scope.open || e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (k === " ") { e.preventDefault(); if (!e.repeat) setMode(scopeStage, scopeModes, scopeStage.dataset.mode === "b" ? "a" : "b"); }
+    else if (k === "w" || k === "W") setMode(scopeStage, scopeModes, "wipe");
+    else if (k === "a" || k === "A") setMode(scopeStage, scopeModes, "a");
+    else if (k === "b" || k === "B") setMode(scopeStage, scopeModes, "b");
+    else if (k === "ArrowLeft") { e.preventDefault(); scopeMove(-1); }
+    else if (k === "ArrowRight") { e.preventDefault(); scopeMove(1); }
+  });
+  document.addEventListener("keyup", function (e) { if (scope.open && e.key === " ") e.preventDefault(); });   // a focused button must not also fire
+
+  // ---------- footer ----------
+  var foot = document.getElementById("foot");
+  foot.appendChild(el("p", null, "Both models are sampled with the same settings: " + S.steps + " steps, " + S.width + " × " + S.height +
+    ", no classifier-free guidance, and the same starting noise for the two pictures of a pair. Every score is one HPSv3 forward pass per picture."));
+  foot.appendChild(el("p", null, "Every number on this page is also in scores.tsv, next to this file."));
+
+  // ---------- first paint ----------
+  renderCards(); deckH();
+})();
+</script>
+</body>
+</html>

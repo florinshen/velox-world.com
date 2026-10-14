@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://velox-world.com/sitemap.xml

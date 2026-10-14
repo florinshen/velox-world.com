@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RPO — Routing Policy Optimization for online diffusion RL · Velox World</title>
+<meta name="description" content="Routing Policy Optimization (RPO) turns attention routing into a discrete policy for online diffusion reinforcement learning. Two matched rollouts differ only in their sampled routes; inference restores dense attention and the original sampler. About 3–4× less training compute than Flow-GRPO-style baselines.">
+<meta name="theme-color" content="#04060b">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://velox-world.com/rpo/">
+<link rel="icon" href="https://media.velox-world.com/assets/img/favicon.svg" type="image/svg+xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Velox World">
+<meta property="og:title" content="RPO: Routing Policy Optimization for online diffusion RL">
+<meta property="og:description" content="Explore inside the generator, not the sampler. Attention routing as a discrete policy, with dense inference restored.">
+<meta property="og:url" content="https://velox-world.com/rpo/">
+<meta property="og:image" content="https://media.velox-world.com/assets/img/og-rpo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RPO: Routing Policy Optimization for online diffusion RL">
+<meta name="twitter:description" content="Explore inside the generator, not the sampler. Attention routing as a discrete policy, with dense inference restored.">
+<meta name="twitter:image" content="https://media.velox-world.com/assets/img/og-rpo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "url": "https://velox-world.com/rpo/",
+  "name": "RPO: Routing Policy Optimization for online diffusion RL",
+  "isPartOf": { "@type": "WebSite", "url": "https://velox-world.com/", "name": "Velox World" },
+  "mainEntity": {
+    "@type": "ScholarlyArticle",
+    "headline": "Routing Policy Optimization for Online Diffusion Reinforcement Learning",
+    "description": "Attention routing as a discrete policy: two matched rollouts differ only in their sampled attention routes, and inference restores dense attention with the original sampler.",
+    "inLanguage": "en",
+    "publisher": { "@type": "Organization", "name": "Velox World", "url": "https://velox-world.com/" }
+  }
+}
+</script>
+
+<link rel="stylesheet" href="../assets/css/site.css">
+<link rel="stylesheet" href="../assets/css/project.css">
+</head>
+<body data-theme="rpo">
+<a class="skip" href="#main">Skip to content</a>
+<div class="progress" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="../" aria-label="Velox World — home">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <defs><linearGradient id="lg" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse"><stop stop-color="#52e0ff"/><stop offset="1" stop-color="#8c7bff"/></linearGradient></defs>
+        <path d="M4.5 6.5 16 26 27.5 6.5" stroke="url(#lg)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9.6 15.2h12.8" stroke="url(#lg)" stroke-width="1.7" stroke-linecap="round" opacity=".6"/>
+        <circle cx="16" cy="26" r="1.9" fill="#fff"/>
+      </svg>
+      Velox <span>World</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#idea">Idea</a>
+      <a href="#results">Results</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#release">Release</a>
+      <i class="sep" aria-hidden="true"></i>
+      <a class="proj keep" href="./" aria-current="page">RPO</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ============ HERO ============ -->
+  <section class="p-hero">
+    <div class="blueprint" aria-hidden="true"></div>
+    <div class="wrap">
+      <p class="crumbs rv"><a href="../">Velox World</a><span>/</span><span>Research</span><span>/</span><span style="color:var(--text)">RPO</span><span class="state"><i></i>Preprint · arXiv soon</span></p>
+      <h1 class="p-title rv" style="--d:60ms"><span class="grad">RPO</span></h1>
+      <p class="p-sub rv" style="--d:120ms">Routing Policy Optimization <em>for online diffusion reinforcement learning.</em></p>
+      <p class="lead p-lead rv" style="--d:180ms">Reinforcement learning can align visual generators with rewards beyond pretraining, but score-function methods usually inject noise into the reverse trajectory and pay for it with large groups of complete rollouts. RPO moves exploration <b>inside</b> the generator: attention routing becomes a discrete policy, and inference returns to dense attention.</p>
+      <div class="p-cta rv" style="--d:240ms">
+        <a class="btn primary" href="#viewer">Compare base and RPO <span class="arr" aria-hidden="true">↓</span></a>
+        <a class="btn" href="#release">Paper <span class="soon">arXiv · soon</span></a>
+        <a class="btn" href="#release">Code <span class="soon">soon</span></a>
+      </div>
+      <p class="byline rv" style="--d:300ms">Authors and affiliations are listed with the preprint.</p>
+    </div>
+  </section>
+
+  <!-- ============ A/B VIEWER ============ -->
+  <section class="wrap" id="viewer" aria-label="Base model against RPO" style="padding-bottom: clamp(56px, 7vw, 96px)">
+    <div class="stage rv">
+      <div class="stage-bar">
+        <span class="ttl"><i></i>Wan2.2-TI2V-5B · same prompt, same noise · drag to wipe</span>
+        <span class="grow"></span>
+        <button type="button" class="iconbtn" id="v-play" aria-pressed="true" aria-label="Pause clip">
+          <svg viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="1.5" width="3.6" height="11" rx="1"/><rect x="8.4" y="1.5" width="3.6" height="11" rx="1"/></svg>
+        </button>
+      </div>
+      <div class="wipe" id="v-wipe">
+        <canvas id="v-canvas" width="1280" height="704" role="img" aria-label="Video frame. Left of the line: the base Wan2.2 model. Right of the line: the same model after RPO."></canvas>
+        <span class="chip tagA"><i class="d" style="--c:#4f8cff"></i>Base · Wan2.2</span>
+        <span class="chip tagB"><i class="d" style="--c:#ffa347"></i>+ RPO</span>
+        <i class="rule"></i>
+        <i class="grip" aria-hidden="true"><svg viewBox="0 0 22 22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6 3 11l5 5M14 6l5 5-5 5"/></svg></i>
+        <input type="range" id="v-x" min="0" max="1000" value="500" aria-label="Wipe position. Left shows the base model, right shows RPO.">
+      </div>
+      <div class="stage-foot">
+        <div class="score-line" style="width:100%">
+          <span>HPSv3 · base <b id="v-base">7.89</b></span>
+          <span>RPO <b id="v-rpo">8.96</b></span>
+          <span>change <b class="g" id="v-gain">+1.07</b></span>
+        </div>
+      </div>
+    </div>
+    <video id="v-video" class="vsrc" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+
+    <div class="clip-tabs rv" id="v-tabs" role="tablist" aria-label="Choose a prompt">
+      <button type="button" class="clip-tab" role="tab" aria-selected="true" data-n="0000" data-base="7.89" data-rpo="8.96" data-gain="+1.07">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0000.jpg')"></span><span class="meta"><b>Prompt 0</b><small>7.89 → 8.96</small></span>
+      </button>
+      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0001" data-base="7.98" data-rpo="9.32" data-gain="+1.34">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0001.jpg')"></span><span class="meta"><b>Prompt 1</b><small>7.98 → 9.32</small></span>
+      </button>
+      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0002" data-base="7.95" data-rpo="9.33" data-gain="+1.38">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0002.jpg')"></span><span class="meta"><b>Prompt 2</b><small>7.95 → 9.33</small></span>
+      </button>
+      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0003" data-base="6.09" data-rpo="9.71" data-gain="+3.62">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0003.jpg')"></span><span class="meta"><b>Prompt 3</b><small>6.09 → 9.71</small></span>
+      </button>
+      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0004" data-base="7.62" data-rpo="9.14" data-gain="+1.52">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0004.jpg')"></span><span class="meta"><b>Prompt 4</b><small>7.62 → 9.14</small></span>
+      </button>
+      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0005" data-base="8.64" data-rpo="6.87" data-gain="−1.77">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0005.jpg')"></span><span class="meta"><b>Prompt 5</b><small>8.64 → 6.87</small></span>
+      </button>
+    </div>
+    <p class="byline" style="margin-top:14px">Prompts 0 to 5 of the 61-prompt comparison set, in order, with HPSv3 for each clip. Across all 61 prompts the mean HPSv3 goes from 7.03 to 8.74; RPO scores higher on 52 prompts and lower on 9. Every prompt is in the gallery below.</p>
+  </section>
+
+  <!-- ============ HEADLINE NUMBERS ============ -->
+  <section class="wrap" style="padding-bottom: clamp(80px, 10vw, 140px)">
+    <div class="stats rv">
+      <div class="stat">
+        <div class="v"><span class="grad">24.1</span><small>GPU-h</small></div>
+        <p class="k">To train on Wan2.2</p>
+        <p class="d">H100 GPU-hours. Flow-GRPO took 75.4 and DanceGRPO 102.3; the runs are not compute-matched.</p>
+      </div>
+      <div class="stat">
+        <div class="v"><span class="grad">3.1–4.2</span><small>×</small></div>
+        <p class="k">Less training compute</p>
+        <p class="d">Than Flow-GRPO and DanceGRPO respectively, with the same HPSv3 reward.</p>
+      </div>
+      <div class="stat">
+        <div class="v">+3</div>
+        <p class="k">Dense-model reward gain</p>
+        <p class="d">Reached within about 15 steps and held through step 50, measured on the dense model.</p>
+      </div>
+      <div class="stat">
+        <div class="v">2</div>
+        <p class="k">Rollouts per group</p>
+        <p class="d">A matched pair, against G = 8 for DanceGRPO. Both share prompt and noise.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 IDEA ============ -->
+  <section class="section" id="idea">
+    <div class="wrap">
+      <div class="split">
+        <div class="rv">
+          <p class="eyebrow"><i></i>01 · The idea</p>
+          <h2 style="margin-top:22px;font-size:clamp(30px,3.8vw,48px);letter-spacing:-0.024em;line-height:1.1;text-wrap:balance">Put the randomness inside attention, not on the sampler's path.</h2>
+          <div class="prose" style="margin-top:26px">
+            <p>Sampler-space RL such as Flow-GRPO and DanceGRPO explores by perturbing the reverse process, then estimates an advantage from a group of complete stochastic rollouts.</p>
+            <p>RPO keeps the deterministic sampler. At one denoising level, each query block keeps a random subset of its candidate key blocks, with <b>Bernoulli probabilities taken from the generator's own query–key affinities</b>. The sampled masks are the actions.</p>
+          </div>
+        </div>
+
+        <div class="compare rv" style="--d:100ms" role="table" aria-label="Sampler-space RL compared with RPO">
+          <div class="c-head" role="row"><span role="columnheader"></span><span role="columnheader">Sampler-space RL</span><span role="columnheader" class="us">RPO</span></div>
+          <div class="c-row" role="row"><span class="k" role="rowheader">Exploration</span><span role="cell">Noise injected into the reverse trajectory</span><span role="cell" class="us">Bernoulli routes inside attention</span></div>
+          <div class="c-row" role="row"><span class="k" role="rowheader">Per update</span><span role="cell">Groups of complete rollouts, G = 8 in DanceGRPO</span><span role="cell" class="us">Matched pairs, G = 2, 64 pairs per step</span></div>
+          <div class="c-row" role="row"><span class="k" role="rowheader">Advantage</span><span role="cell">Group statistics over the rollouts</span><span role="cell" class="us">Reward difference of the pair</span></div>
+          <div class="c-row" role="row"><span class="k" role="rowheader">Sampler</span><span role="cell">Stochastic during training</span><span role="cell" class="us">Original, deterministic, throughout</span></div>
+        </div>
+      </div>
+
+      <div class="prose rv" style="margin-top:clamp(36px,5vw,64px);max-width:46em">
+        <p>Two rollouts share the prompt, the initial latent, the routed level and the routed layers. They differ <b>only</b> in their masks, so their reward difference measures the effect of the two routing choices. Below, each cell is one candidate key block. Change how sharp the policy is and watch the two masks agree or diverge.</p>
+      </div>
+
+      <div class="stage rv" style="margin-top:28px">
+        <div class="stage-bar">
+          <span class="ttl"><i></i>Route lab · rows are query blocks, columns are key blocks</span>
+          <span class="grow"></span>
+          <button type="button" class="btn" id="m-resample" style="--h:34px;font-size:13px;padding:0 14px">Resample pair</button>
+          <button type="button" class="btn" id="m-auto" aria-pressed="false" style="--h:34px;font-size:13px;padding:0 14px">Auto: off</button>
+        </div>
+        <div style="padding:20px">
+          <div class="mask-lab">
+            <div class="mask-cell"><h5><span class="tag">a₁</span>Rollout 1</h5><canvas id="m-a1" aria-label="Sampled routing mask for rollout 1"></canvas><p>Keeps <b id="m-k1" style="color:var(--text)">—</b> of candidates</p></div>
+            <div class="mask-cell"><h5><span class="tag">a₂</span>Rollout 2</h5><canvas id="m-a2" aria-label="Sampled routing mask for rollout 2"></canvas><p>Keeps <b id="m-k2" style="color:var(--text)">—</b> of candidates</p></div>
+            <div class="mask-cell"><h5><span class="tag">Δ</span>Where they differ</h5><canvas id="m-diff" aria-label="Cells where the two masks disagree"></canvas><p>Differ on <b id="m-d" style="color:var(--amber)">—</b> of candidates</p></div>
+          </div>
+        </div>
+        <div class="ctl-row">
+          <label class="ctl" for="m-T">Temperature T <input id="m-T" type="range" min="0.4" max="2.5" step="0.05" value="1"><output id="m-Tv">1.00</output></label>
+          <label class="ctl" for="m-b">Offset β₀ <input id="m-b" type="range" min="-2" max="2" step="0.1" value="0"><output id="m-bv">+0.0</output></label>
+        </div>
+        <div class="stage-foot">
+          <span class="key"><i style="--c:#dbe4ff"></i>Safety block, always active</span>
+          <span class="key"><i style="--c:#ffa347"></i>Kept candidate</span>
+          <span class="key"><i style="--c:rgba(148,170,215,.35)"></i>Dropped (shade = keep probability)</span>
+          <span class="key"><i style="--c:#ffa347"></i>Δ: kept only in a₁</span>
+          <span class="key"><i style="--c:#4f8cff"></i>Δ: kept only in a₂</span>
+        </div>
+      </div>
+      <p class="byline" style="margin-top:14px">Illustration of the sampling rule p = σ(z / T + β₀) on toy logits, not real attention maps.</p>
+
+      <div class="steps five" style="margin-top:56px">
+        <div class="step rv">
+          <p class="n">01</p>
+          <h3>Denoise densely</h3>
+          <p>Run the reverse process as usual down to a sampled routed level. The sampler is untouched.</p>
+        </div>
+        <div class="step rv" style="--d:60ms">
+          <p class="n">02</p>
+          <h3>Draw two masks</h3>
+          <p>Safety blocks stay on. Each candidate block is kept with its Bernoulli probability.</p>
+        </div>
+        <div class="step rv" style="--d:120ms">
+          <p class="n">03</p>
+          <h3>Finish the pair</h3>
+          <p>Same prompt, latent, level and layers. Only the sampled routes differ.</p>
+        </div>
+        <div class="step rv" style="--d:180ms">
+          <p class="n">04</p>
+          <h3>Score the difference</h3>
+          <p>The reward difference becomes the advantage for the recorded routing actions.</p>
+        </div>
+        <div class="step rv" style="--d:240ms">
+          <p class="n">05</p>
+          <h3>Update shared weights</h3>
+          <p>A replay likelihood gradient updates the attention parameters dense inference reuses.</p>
+        </div>
+      </div>
+
+      <div class="note rv" style="margin-top:20px">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M10 9v5M10 6.2v.1" stroke-linecap="round"/></svg>
+        <p><b>Nothing changes at inference.</b> All masks are removed: dense attention and the original deterministic sampler. The gains transfer because the routing policy reuses the generator's native attention parameters.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 RESULTS ============ -->
+  <section class="section" id="results">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="eyebrow"><i></i>02 · Results</p>
+        <h2>Faster to learn, and the gain survives dense inference.</h2>
+        <p class="lead">Training rewards are scored on routed or SDE rollouts, so the comparison that matters is the <b>dense model</b> that ships: same prompts, same noise, same sampler.</p>
+      </div>
+
+      <div class="split flip">
+        <div class="stage rv">
+          <div class="stage-bar"><span class="ttl"><i></i>Dense evaluation gain · Wan2.2, HPSv3 reward</span></div>
+          <div style="padding: 18px 18px 8px">
+            <svg viewBox="0 0 640 276" id="gain-svg" role="img" aria-label="Dense evaluation reward gain over each method's own step zero, over 50 training steps. RPO reaches about +3 within 15 steps and holds. Flow-GRPO dips to about −3 at step 10 and recovers to +2.7 at step 50. DanceGRPO stays near zero.">
+              <g stroke="rgba(148,170,215,.12)"><path d="M50 30H450M50 79H450M50 179H450M50 228H450"/></g>
+              <path d="M50 129H450" stroke="rgba(148,170,215,.45)"/>
+              <path d="M50 30V228" stroke="rgba(148,170,215,.3)"/>
+              <g fill="#8792a8" font-family="ui-monospace,Menlo,monospace" font-size="14" text-anchor="end">
+                <text x="42" y="34">+3</text><text x="42" y="83">+1.5</text><text x="42" y="133">0</text><text x="42" y="183">−1.5</text><text x="42" y="232">−3</text>
+              </g>
+              <g fill="#8792a8" font-family="ui-monospace,Menlo,monospace" font-size="14" text-anchor="middle">
+                <text x="50" y="252">0</text><text x="144" y="252">10</text><text x="238" y="252">20</text><text x="332" y="252">30</text><text x="450" y="252">50</text>
+              </g>
+              <text x="450" y="272" fill="#8792a8" font-family="ui-monospace,Menlo,monospace" font-size="14" text-anchor="end">training step</text>
+              <!-- DanceGRPO: peak then a 0..+0.2 band -->
+              <rect x="97" y="125" width="353" height="4" fill="#6d9bff" opacity=".35"/>
+              <path d="M50 129 97 125" stroke="#6d9bff" stroke-width="2" fill="none"/>
+              <circle cx="97" cy="125" r="4.5" fill="#6d9bff"/>
+              <!-- Flow-GRPO -->
+              <path d="M50 129 144 228 450 52" stroke="#b6a6ff" stroke-width="2.4" fill="none" stroke-dasharray="1 0"/>
+              <path d="M144 228 450 52" stroke="#b6a6ff" stroke-width="2.4" fill="none" stroke-dasharray="3 5"/>
+              <circle cx="144" cy="228" r="5" fill="#b6a6ff"/><circle cx="450" cy="52" r="5" fill="#b6a6ff"/>
+              <!-- RPO -->
+              <path d="M50 129 97 44 191 35 450 30" stroke="#ffa347" stroke-width="3.2" fill="none"/>
+              <circle cx="97" cy="44" r="5.5" fill="#ffa347"/><circle cx="191" cy="35" r="5.5" fill="#ffa347"/><circle cx="450" cy="30" r="5.5" fill="#ffa347"/>
+              <g font-family="-apple-system,'SF Pro Text',Inter,sans-serif" font-size="17" font-weight="600">
+                <text x="464" y="26" fill="#ffa347">RPO ≈ +3</text>
+                <text x="464" y="62" fill="#b6a6ff">Flow-GRPO +2.7</text>
+                <text x="464" y="126" fill="#6d9bff">DanceGRPO</text>
+                <text x="464" y="146" fill="#6d9bff" font-size="14" font-weight="500">0 to +0.2</text>
+              </g>
+            </svg>
+          </div>
+          <div class="stage-foot">
+            <span style="text-transform:none;letter-spacing:0;font:400 13px/1.5 var(--sans)">Markers are values stated in the paper's text; lines between them are schematic. Gain is measured against each method's own step-0 score.</span>
+          </div>
+        </div>
+
+        <div class="prose rv" style="--d:100ms">
+          <p><b>RPO reaches its final gain within about 15 steps and keeps it.</b> It gains +2.17 by step 5 and about +2.9 by step 15, then stays near +3 through step 50.</p>
+          <p><b>Flow-GRPO follows its training reward.</b> The dense model dips to about −3 at step 10 and only recovers to +2.7 by step 50, so it needs the whole 50-step window to approach the level RPO reaches within about 15.</p>
+          <p><b>DanceGRPO accumulates almost no gain,</b> peaking at +0.29 at step 5 and staying between about 0 and +0.2.</p>
+          <div class="note">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M10 9v5M10 6.2v.1" stroke-linecap="round"/></svg>
+            <p>RPO collects 64 matched pairs per step and routes a single denoising level; DanceGRPO uses groups of G = 8 and updates the full model.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="split flip" style="margin-top:clamp(40px,5vw,72px)">
+        <div class="panel rv">
+          <div class="bar-group">
+            <h4>Training cost on Wan2.2</h4>
+            <p class="sub">GPU-hours on H100. The runs are not compute-matched.</p>
+            <div class="bars">
+              <div class="bar-row best"><span class="lab"><b>RPO</b></span><div class="bar"><i style="--w:23.6%"></i></div><span class="val num">24.1</span></div>
+              <div class="bar-row"><span class="lab">Flow-GRPO</span><div class="bar"><i style="--w:73.7%;--c:#b6a6ff"></i></div><span class="val num">75.4</span></div>
+              <div class="bar-row"><span class="lab">DanceGRPO</span><div class="bar"><i style="--w:100%;--c:#6d9bff"></i></div><span class="val num">102.3</span></div>
+            </div>
+          </div>
+          <div class="bar-group">
+            <h4>VBench transfer</h4>
+            <p class="sub">6,220 videos from shared prompts and initial noise. Scores in percent, best per row in bold.</p>
+            <div class="table-scroll">
+              <table class="wb mini">
+                <thead><tr><th class="m" scope="col">Dimension</th><th scope="col">Wan2.2<br>base</th><th scope="col">RPO</th><th scope="col">Dance-<br>GRPO</th><th scope="col">Flow-<br>GRPO</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">Aesthetic quality</th><td>61.91</td><td><b>62.64</b></td><td>61.74</td><td>60.09</td></tr>
+                  <tr><th scope="row">Imaging quality</th><td>67.71</td><td><b>68.65</b></td><td>67.69</td><td>67.43</td></tr>
+                  <tr><th scope="row">Subject consistency</th><td>98.37</td><td><b>98.69</b></td><td>98.38</td><td>97.59</td></tr>
+                  <tr><th scope="row">Motion smoothness</th><td>98.76</td><td><b>99.06</b></td><td>98.75</td><td>97.88</td></tr>
+                  <tr><th scope="row">Object class</th><td>81.01</td><td><b>85.41</b></td><td>80.81</td><td>79.10</td></tr>
+                  <tr><th scope="row">Multiple objects</th><td>59.15</td><td><b>61.30</b></td><td>59.34</td><td>59.98</td></tr>
+                  <tr><th scope="row">Human action</th><td>79.40</td><td><b>84.20</b></td><td>80.00</td><td>81.80</td></tr>
+                  <tr><th scope="row">Scene</th><td>37.41</td><td><b>40.84</b></td><td>36.95</td><td>36.73</td></tr>
+                  <tr class="tot"><th scope="row">Overall score</th><td>81.61</td><td><b>82.00</b></td><td>81.46</td><td>81.19</td></tr>
+                  <tr class="gpu"><th scope="row">Training GPU-hours (H100)</th><td>—</td><td><b>24.1</b></td><td>102.3</td><td>75.4</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="cap" style="margin-top:12px;font-size:13px;color:var(--text-3)">The paper's table lists the eight VBench dimensions where RPO exceeds both RL baselines, plus the overall score. Other dimensions show trade-offs, described alongside.</p>
+          </div>
+        </div>
+
+        <div class="prose rv" style="--d:100ms">
+          <p><b>RPO is the only trained checkpoint above the base model overall</b> (82.00 against 81.61; DanceGRPO 81.46, Flow-GRPO 81.19). Differences from the base are largest on semantic dimensions: human action +4.80, object class +4.40, scene +3.43 and multiple objects +2.15, and smaller on quality and consistency dimensions.</p>
+          <p><b>There are trade-offs.</b> RPO lowers color and appearance style relative to the base model, although it still leads the trained baselines there. The four Wan2.2 overall scores span only 0.81 points on one seed set, so the aggregate ranking is directional.</p>
+          <div class="panel" style="padding:20px 22px">
+            <h4>SD3.5-Medium · DrawBench, no CFG</h4>
+            <div class="bars" style="margin-top:16px;gap:12px">
+              <div class="bar-row" style="grid-template-columns:minmax(120px,1fr) auto"><span class="lab">ImageReward</span><span class="val num" style="text-align:right">−0.54 → <span style="color:var(--accent)">−0.18</span></span></div>
+              <div class="bar-row" style="grid-template-columns:minmax(120px,1fr) auto"><span class="lab">UnifiedReward</span><span class="val num" style="text-align:right">2.10 → <span style="color:var(--accent)">2.32</span></span></div>
+              <div class="bar-row" style="grid-template-columns:minmax(120px,1fr) auto"><span class="lab">DeQA-Score</span><span class="val num" style="text-align:right">3.35 → <span style="color:var(--accent)">3.56</span></span></div>
+            </div>
+            <p class="cap">1,000 images from 200 prompts and 5 seeds. None of these metrics is the training reward.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 GALLERY ============ -->
+  <section class="section" id="gallery">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <p class="eyebrow"><i></i>03 · Gallery</p>
+        <h2>Every prompt, side by side.</h2>
+        <p class="lead">Full comparison pages, with per-prompt scores, wipe and frame-by-frame viewers. Both models render the same prompts from the same starting noise.</p>
+      </div>
+
+      <div class="gallery-links">
+        <a class="g-card rv" href="wan2.2/">
+          <div class="th dual">
+            <span style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0000.jpg');background-size:auto 100%;background-position:0 0;background-repeat:no-repeat"></span>
+            <span style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0000.jpg');background-size:auto 100%;background-position:100% 0;background-repeat:no-repeat"></span>
+          </div>
+          <div class="tx">
+            <h4>Wan2.2-TI2V-5B · video</h4>
+            <p>61 prompts, each a 5-second 1280 × 704 clip, base against RPO, with a wipe, side-by-side and per-frame viewer.</p>
+            <p class="m">HPSv3 7.03 → 8.74 · RPO higher on 52 of 61</p>
+          </div>
+        </a>
+        <a class="g-card rv" style="--d:80ms" href="sd3.5/">
+          <div class="th dual">
+            <span style="background-image:url('https://media.velox-world.com/rpo/sd3.5/base/0000.png')"></span>
+            <span style="background-image:url('https://media.velox-world.com/rpo/sd3.5/rpo/0000.png')"></span>
+          </div>
+          <div class="tx">
+            <h4>SD3.5-Medium · image</h4>
+            <p>64 prompts at 512 × 512, base against RPO, same prompt and same starting noise.</p>
+            <p class="m">HPSv3 3.97 → 10.00 · RPO higher on 63 of 64</p>
+          </div>
+        </a>
+        <div class="g-card soon rv" style="--d:160ms" aria-label="MiniMax-H3 gallery, coming soon">
+          <div class="th">MiniMax-H3</div>
+          <div class="tx">
+            <h4>MiniMax-H3 · video</h4>
+            <p>Comparison page for a third generator.</p>
+            <p class="m">Coming soon</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 04 RELEASE ============ -->
+  <section class="section" id="release">
+    <div class="wrap">
+      <div class="split">
+        <div class="rv">
+          <p class="eyebrow"><i></i>04 · Release</p>
+          <h2 style="margin-top:22px;font-size:clamp(30px,3.8vw,48px);letter-spacing:-0.024em;line-height:1.1">What is coming, and when it lands here.</h2>
+          <p class="lead" style="margin-top:22px">This page will be updated in place when the preprint is public. Citation details appear here at that point.</p>
+        </div>
+        <div class="release rv" style="--d:100ms">
+          <div class="rel-row"><span class="i">01</span><div><h4>Preprint</h4><p>The paper, with implementation settings and evaluation protocols in the appendix.</p></div><span class="st">arXiv · soon</span></div>
+          <div class="rel-row"><span class="i">02</span><div><h4>Code and results</h4><p>Training code for the routing policy and the evaluation outputs.</p></div><span class="st">Planned</span></div>
+          <div class="rel-row"><span class="i">03</span><div><h4>MiniMax-H3 gallery</h4><p>A third comparison page, next to Wan2.2 and SD3.5.</p></div><span class="st">Planned</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="pager-wrap">
+    <nav class="pager wrap one" aria-label="Site">
+      <a href="../"><small>← Back</small><b>Velox World</b></a>
+    </nav>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-base" style="margin-top:0;padding-top:0;border:0">
+      <span>© 2026 Velox World</span>
+      <span><a href="../">velox-world.com</a> / rpo</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/site.js"></script>
+<script src="demo.js"></script>
+</body>
+</html>
