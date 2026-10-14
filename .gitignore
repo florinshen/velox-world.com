@@ -13,3 +13,7 @@ rpo/wan2.2/side-by-side/
 
 # Local agent notes; never committed.
 CLAUDE.md
+
+# Local agent configuration; never committed.
+.codex/
+AGENTS.md
