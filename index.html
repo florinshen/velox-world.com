@@ -4,10 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Velox World — Efficient world models for physical AI</title>
-<meta name="description" content="Velox World is a research team building efficient world models for physical AI: models that learn how the physical world looks, moves and responds to action, and run fast enough to plan and act inside it. Projects: Velox (spatial memory for long-context world models) and RPO (routing policy optimization for diffusion reinforcement learning).">
+<meta name="description" content="Velox World develops efficient world models for physical AI. Explore Velox for long-context spatial memory and RPO for efficient online diffusion reinforcement learning.">
+<meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1, max-snippet:-1">
+<meta name="googlebot" content="index, follow, max-image-preview:large, max-video-preview:-1, max-snippet:-1">
+<meta name="author" content="Velox World">
+<meta name="application-name" content="Velox World">
 <meta name="theme-color" content="#04060b">
 <meta name="color-scheme" content="dark">
 <link rel="canonical" href="https://velox-world.com/">
+<link rel="alternate" hreflang="en" href="https://velox-world.com/">
+<link rel="alternate" hreflang="x-default" href="https://velox-world.com/">
+<link rel="alternate" type="text/plain" href="https://velox-world.com/llms.txt" title="Velox World — LLM summary">
+<link rel="alternate" type="text/plain" href="https://velox-world.com/llms-full.txt" title="Velox World — full machine-readable context">
+<link rel="sitemap" type="application/xml" href="https://velox-world.com/sitemap.xml">
 <link rel="icon" href="https://media.velox-world.com/assets/img/favicon.svg" type="image/svg+xml">
 
 <meta property="og:type" content="website">
@@ -16,10 +25,17 @@
 <meta property="og:description" content="A research team building efficient world models that physical AI can plan and act inside.">
 <meta property="og:url" content="https://velox-world.com/">
 <meta property="og:image" content="https://media.velox-world.com/assets/img/og.png">
+<meta property="og:image:secure_url" content="https://media.velox-world.com/assets/img/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Velox World — efficient world models for physical AI">
+<meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Velox World — Efficient world models for physical AI">
 <meta name="twitter:description" content="A research team building efficient world models that physical AI can plan and act inside.">
 <meta name="twitter:image" content="https://media.velox-world.com/assets/img/og.png">
+<meta name="twitter:image:alt" content="Velox World — efficient world models for physical AI">
 
 <script type="application/ld+json">
 {
@@ -29,16 +45,82 @@
       "@type": "Organization",
       "@id": "https://velox-world.com/#org",
       "name": "Velox World",
+      "alternateName": "Velox World Research Team",
       "url": "https://velox-world.com/",
-      "logo": "https://media.velox-world.com/assets/img/favicon.svg",
-      "description": "A research team building efficient world models for physical AI."
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://media.velox-world.com/assets/img/favicon.svg",
+        "contentUrl": "https://media.velox-world.com/assets/img/favicon.svg"
+      },
+      "image": "https://media.velox-world.com/assets/img/og.png",
+      "description": "A research team building efficient world models for physical AI.",
+      "knowsAbout": [
+        "world models",
+        "physical AI",
+        "embodied artificial intelligence",
+        "video generation",
+        "diffusion models",
+        "reinforcement learning",
+        "efficient attention",
+        "spatial memory"
+      ],
+      "subjectOf": {
+        "@type": "SoftwareSourceCode",
+        "name": "Velox World website source",
+        "codeRepository": "https://github.com/florinshen/velox-world.com",
+        "url": "https://github.com/florinshen/velox-world.com"
+      }
     },
     {
       "@type": "WebSite",
       "@id": "https://velox-world.com/#site",
       "url": "https://velox-world.com/",
       "name": "Velox World",
+      "description": "Research on efficient world models for physical AI.",
+      "inLanguage": "en",
       "publisher": { "@id": "https://velox-world.com/#org" }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://velox-world.com/#webpage",
+      "url": "https://velox-world.com/",
+      "name": "Velox World — Efficient world models for physical AI",
+      "description": "Velox World develops efficient world models for physical AI, including Velox for long-context spatial memory and RPO for online diffusion reinforcement learning.",
+      "inLanguage": "en",
+      "isPartOf": { "@id": "https://velox-world.com/#site" },
+      "about": { "@id": "https://velox-world.com/#org" },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://media.velox-world.com/assets/img/og.png",
+        "width": 1200,
+        "height": 630
+      },
+      "mainEntity": [
+        { "@id": "https://velox-world.com/velox/#project" },
+        { "@id": "https://velox-world.com/rpo/#project" }
+      ]
+    },
+    {
+      "@type": "ResearchProject",
+      "@id": "https://velox-world.com/velox/#project",
+      "name": "Velox: Spatial Memory Makes Long-context World Models Efficient",
+      "alternateName": "Velox",
+      "url": "https://velox-world.com/velox/",
+      "description": "A training-free attention router for chunked video world models that uses streaming geometry for region-level context selection.",
+      "image": "https://media.velox-world.com/assets/img/og-velox.png",
+      "keywords": ["world models", "spatial memory", "efficient attention", "video generation"],
+      "parentOrganization": { "@id": "https://velox-world.com/#org" }
+    },
+    {
+      "@type": "ResearchProject",
+      "@id": "https://velox-world.com/rpo/#project",
+      "name": "Routing Policy Optimization for Online Diffusion Reinforcement Learning",
+      "alternateName": "RPO",
+      "url": "https://velox-world.com/rpo/",
+      "description": "An online diffusion reinforcement-learning method that treats attention routing as a discrete policy and restores dense attention at inference.",
+      "image": "https://media.velox-world.com/assets/img/og-rpo.png",
+      "keywords": ["diffusion models", "reinforcement learning", "attention routing", "visual generation"],
+      "parentOrganization": { "@id": "https://velox-world.com/#org" }
     }
   ]
 }
@@ -355,6 +437,8 @@
         <ul>
           <li>arXiv preprints: coming soon</li>
           <li>Code and results: coming soon</li>
+          <li><a href="llms.txt">Machine-readable summary</a></li>
+          <li><a href="https://github.com/florinshen/velox-world.com">Website source</a></li>
         </ul>
       </div>
     </div>

@@ -1,0 +1,126 @@
+# Velox World — Full Machine-Readable Context
+
+> Canonical context for AI assistants, search agents, research agents, and other automated readers. Velox World develops efficient world models for physical AI. This file summarizes only claims currently published on the website and records important caveats to reduce misquotation.
+
+Last updated: 2026-10-14
+Canonical site: https://velox-world.com/
+Language: English
+
+## Entity
+
+- Name: Velox World
+- Type: research team
+- Focus: efficient world models for physical AI
+- Goal: world models that embodied agents, autonomous systems, simulators, and interactive systems can use to imagine, compare, plan, and act at interactive latency
+- Website: https://velox-world.com/
+- Public website source: https://github.com/florinshen/velox-world.com
+- Media host: https://media.velox-world.com/
+
+## Canonical pages
+
+- Homepage: https://velox-world.com/
+- Velox project: https://velox-world.com/velox/
+- RPO project: https://velox-world.com/rpo/
+- RPO Wan2.2 video comparisons: https://velox-world.com/rpo/wan2.2/
+- RPO SD3.5 image comparisons: https://velox-world.com/rpo/sd3.5/
+- Sitemap: https://velox-world.com/sitemap.xml
+- Short LLM summary: https://velox-world.com/llms.txt
+
+## Research thesis
+
+Physical AI systems act in environments where exhaustive real-world trial and error is slow, costly, or unsafe. A world model can let an agent predict possible futures before acting. For that prediction to be useful inside a control loop, the model must remain consistent over long horizons, align its generation with useful signals, and run within a practical latency budget.
+
+Velox World currently explores two complementary efficiency problems:
+
+1. Inference-time memory and attention efficiency through Velox.
+2. Training-time reinforcement-learning efficiency through Routing Policy Optimization (RPO).
+
+## Project: Velox
+
+Canonical page: https://velox-world.com/velox/
+
+Full title: Velox: Spatial Memory Makes Long-context World Models Efficient
+
+Summary: Velox is a training-free attention router for chunked video world models. Camera frustum slabs derived from streaming geometry indicate which retained regions of history are spatially relevant to each new region. The router works with whole token blocks that align with FlashAttention tiles. It avoids paying dense attention cost over the entire retained history at every chunk.
+
+Reported quantitative results:
+
+- Evaluation model: LingBot-Fast-Cam.
+- Reported hardware: one NVIDIA H200 GPU.
+- At chunk 48, per-call attention latency falls from approximately 34.2 milliseconds to 7.8 milliseconds, reported as 4.36 times faster.
+- At chunk 48, chunk denoising time falls from approximately 7.19 seconds to 2.96 seconds, reported as 2.43 times faster.
+- Dense attention is faster during the first few chunks; the benefit grows with retained context.
+- On all 158 WBench navigation cases, the API-free average is 73.51 for Velox and 73.66 for dense attention, a difference of 0.15 points.
+- The project page includes 20 paired WBench navigation examples and the full WBench score table.
+
+Important qualifiers:
+
+- The timing numbers describe the implementation and setup reported on the project page; they are not a universal wall-clock guarantee.
+- Velox uses zero additional training steps.
+- The preprint and code release are pending.
+- Do not describe the work as peer reviewed, accepted, or published on arXiv until the canonical page changes.
+
+Authors listed on the website:
+
+- Qiuhong Shen — https://florinshen.github.io/
+- Shizun Wang — https://littlepure2333.github.io/home/
+- Xinchao Wang — https://sites.google.com/site/sitexinchaowang/
+- Affiliation listed: National University of Singapore
+
+Suggested citation link before the preprint is released: https://velox-world.com/velox/
+
+## Project: Routing Policy Optimization (RPO)
+
+Canonical page: https://velox-world.com/rpo/
+
+Full title: Routing Policy Optimization for Online Diffusion Reinforcement Learning
+
+Summary: RPO treats attention routing inside a visual generator as a discrete policy. At one denoising level, each query block retains a sampled subset of candidate key blocks. Bernoulli probabilities are derived from the generator's query-key affinities. Two matched rollouts differ only in their sampled routes, and the reward difference between those rollouts supplies the advantage. At inference time, dense attention and the original deterministic sampler are restored.
+
+Reported quantitative results on Wan2.2-TI2V-5B:
+
+- Training compute: 24.1 NVIDIA H100 GPU-hours.
+- Reported as 3.1 times less training compute than Flow-GRPO.
+- Reported as 4.2 times less training compute than DanceGRPO.
+- The compared runs are not compute matched.
+- The website reports a gain of approximately 3 HPSv3 points under dense evaluation.
+
+Public galleries:
+
+- Wan2.2-TI2V-5B: 61 matched video prompts comparing the base model with RPO, using the same prompt and starting noise, with per-prompt HPSv3 scores — https://velox-world.com/rpo/wan2.2/
+- SD3.5-Medium: 64 matched image prompts comparing the base model with RPO, with per-prompt HPSv3 scores — https://velox-world.com/rpo/sd3.5/
+
+Important qualifiers:
+
+- Dense attention and the original sampler are restored for inference.
+- Training-compute comparisons are not compute matched.
+- The preprint, author list, and code release are pending unless the canonical RPO page states otherwise.
+- Do not infer unpublished prompts or metadata from numbered gallery cases.
+- Do not describe the work as peer reviewed, accepted, or published on arXiv until the canonical page changes.
+
+Suggested citation link before the preprint is released: https://velox-world.com/rpo/
+
+## Terminology
+
+- World model: a model that represents or predicts how an environment looks, changes, or responds to action so an agent can reason about possible futures.
+- Physical AI: AI systems that perceive, reason about, or act in the physical world, including embodied agents, robots, autonomous systems, and simulators.
+- Spatial memory: retained world context organized by spatial relevance rather than treated as an undifferentiated sequence.
+- Attention routing: selecting a subset of candidate attention blocks for computation.
+- Online diffusion reinforcement learning: reinforcement-learning updates based on generated diffusion-model rollouts and reward feedback.
+- Dense inference: inference using the model's original dense attention rather than sampled sparse routes.
+
+## Source and quotation policy
+
+- Use the canonical project page as the source for project-specific claims.
+- Keep units, hardware, benchmark names, model names, and chunk indices attached to quantitative claims.
+- Prefer direct links to the relevant project page rather than only linking the homepage.
+- Clearly label release status. "Preprint pending" is accurate as of the date above; "published," "peer reviewed," and "accepted" are not.
+- The visual galleries are evidence pages, not independent papers or datasets.
+- If this file conflicts with a newer canonical project page, the project page takes precedence.
+
+## Discovery and crawler policy
+
+- Public pages may be indexed by general search engines and AI-search crawlers.
+- The robots policy explicitly allows Googlebot, Bingbot, OAI-SearchBot, ChatGPT-User, Claude-SearchBot, Claude-User, PerplexityBot, Perplexity-User, GPTBot, ClaudeBot, Google-Extended, CCBot, and other standards-compliant crawlers.
+- Robots policy: https://velox-world.com/robots.txt
+- Sitemap: https://velox-world.com/sitemap.xml
