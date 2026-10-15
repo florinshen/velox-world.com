@@ -90,7 +90,7 @@ Authors listed on the website (superscripts: 1 = National University of Singapor
 - Haotian Yang (2) — https://yanght321.github.io/
 - Yizhi Wang (2) — https://yizhiwang96.github.io/
 - Chongyang Ma (2) — http://chongyangma.com/
-- Xinchao Wang (1), corresponding author — https://sites.google.com/site/sitexinchaowang/
+- Xinchao Wang (1) — https://sites.google.com/site/sitexinchaowang/
 
 Reported quantitative results on Wan2.2-TI2V-5B:
 
