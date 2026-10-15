@@ -1,11 +1,14 @@
-/* RPO project page — interactive pieces.
+/* RPO project page: interactive pieces.
 
    1) A/B viewer: a side-by-side clip (A | B, 2568 x 704) is decoded once and painted
       onto one canvas; the wipe line decides how much of B replaces A.
-   2) Route lab: a toy of the controlled two-rollout estimator. Each cell is one
-      candidate key block for one query block; Bernoulli keep probability is
-      sigma(z / T + beta0). Two rollouts share everything except the sampled masks.
-      It illustrates the sampling rule, not real attention maps.
+   2) Route lab: a toy of the attention-mass draw and the controlled two-rollout pair.
+      Each row is a query block. Its route logits are the log of the share of its
+      attention that falls on each key block; a categorical draw over the candidate
+      blocks plus a "dense" option, perturbed with Gumbel noise and ranked, decides
+      whether the row stays dense or keeps its own block plus the top K candidates.
+      Two rollouts share everything except the routing seed. It illustrates the rule
+      on toy attention masses, not real attention maps.
    3) Image pairs: SD3.5 base vs. RPO wipes. */
 
 (function () {
@@ -145,100 +148,122 @@
     if (!c1) return;
     var c2 = document.getElementById('m-a2');
     var c3 = document.getElementById('m-diff');
-    var sT = document.getElementById('m-T'), sB = document.getElementById('m-b');
-    var oT = document.getElementById('m-Tv'), oB = document.getElementById('m-bv');
+    var sT = document.getElementById('m-T'), sK = document.getElementById('m-k');
+    var oT = document.getElementById('m-Tv'), oK = document.getElementById('m-kv');
     var btn = document.getElementById('m-resample'), autoBtn = document.getElementById('m-auto');
     var stats = {
-      k1: document.getElementById('m-k1'), k2: document.getElementById('m-k2'), d: document.getElementById('m-d')
+      d1: document.getElementById('m-d1'), d2: document.getElementById('m-d2'), df: document.getElementById('m-d')
     };
 
-    var RQ = 14, RK = 24, CELL = 14;
+    var Q = 16, CELL = 18;                 // Q query blocks (rows) over Q key blocks (columns)
     var DPR = Math.min(window.devicePixelRatio || 1, 2);
     [c1, c2, c3].forEach(function (c) {
-      c.width = RK * CELL * DPR; c.height = RQ * CELL * DPR;
+      c.width = Q * CELL * DPR; c.height = Q * CELL * DPR;
       c.getContext('2d').setTransform(DPR, 0, 0, DPR, 0, 0);
     });
 
     function hash(a, b) { var x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); }
-    function sig(v) { return 1 / (1 + Math.exp(-v)); }
     function sq(v) { return v * v; }
 
-    /* toy affinity logits z[i][j]: a locality band, one globally salient key column, texture */
-    var Z = [], SAFE = [];
-    for (var i = 0; i < RQ; i++) {
-      Z.push([]); SAFE.push([]);
-      var centre = 2 + i * (RK - 6) / (RQ - 1);
-      for (var j = 0; j < RK; j++) {
-        var z = 2.6 * Math.exp(-sq((j - centre) / 2.4))
-              + 1.5 * Math.exp(-sq((j - RK * 0.68) / 1.6)) * (0.65 + 0.35 * Math.sin(i * 0.8))
-              + 1.0 * (hash(i, j) - 0.5) * 2 - 1.3;
-        Z[i].push(z);
-        SAFE[i].push(j === 0 || Math.abs(j - centre) < 1.2);
+    /* toy attention mass m[q][j]: rows sum to one. Each block mostly attends to itself and its
+       neighbours, plus two globally salient blocks and some texture. */
+    var M = [];
+    for (var i = 0; i < Q; i++) {
+      var row = [], sum = 0;
+      for (var j = 0; j < Q; j++) {
+        var v = 1.6 * Math.exp(-sq((j - i) / 0.9))
+              + 0.55 * Math.exp(-sq((j - i) / 2.6))
+              + 0.42 * Math.exp(-sq((j - 3) / 0.8)) * (0.7 + 0.3 * Math.sin(i))
+              + 0.34 * Math.exp(-sq((j - 11) / 0.8)) * (0.7 + 0.3 * Math.cos(i * 0.7))
+              + 0.05 + 0.10 * hash(i, j);
+        row.push(v); sum += v;
       }
+      for (j = 0; j < Q; j++) row[j] /= sum;
+      M.push(row);
     }
 
-    var T = 1, B0 = 0;
+    var T = 1.6, KAPPA = 0.25;                 // at T = 1 a local row mostly stays dense (about 1/(2 - m_qq)); a higher T mixes more
     var mA = null, mB = null, seed = 7;
     function rng() { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+    function gumbel() { return -Math.log(-Math.log(Math.max(1e-12, rng()))); }
 
-    function prob(i, j) { return sig(Z[i][j] / T + B0); }
+    /* one routing draw for one query block:
+       options = candidate blocks (every other block) + the dense option "*", with logits
+       log m_j and log(total mass) = 0. Perturb each logit / T with Gumbel noise and rank.
+       Dense first -> the row attends densely. Otherwise: own block + the K highest candidates. */
+    function drawRow(q) {
+      var K = Math.ceil(KAPPA * Q);                       // kappa * (|C_q| + 1), and |C_q| + 1 = Q
+      var opts = [];
+      for (var j = 0; j < Q; j++) if (j !== q) opts.push({ j: j, s: Math.log(M[q][j]) / T + gumbel() });
+      opts.push({ j: -1, s: 0 / T + gumbel() });          // dense option, logit log(sum of mass) = 0
+      opts.sort(function (a, b) { return b.s - a.s; });
+      var row = new Array(Q).fill(0);
+      if (opts[0].j === -1) { for (var k = 0; k < Q; k++) row[k] = 2; return row; }   // 2 = dense row
+      row[q] = 3;                                          // 3 = own block, always kept
+      for (var r = 0, kept = 0; r < opts.length && kept < K; r++) {
+        if (opts[r].j >= 0) { row[opts[r].j] = 1; kept++; }                           // 1 = kept candidate
+      }
+      return row;
+    }
 
     function sample() {
       mA = []; mB = [];
-      for (var i = 0; i < RQ; i++) {
-        mA.push([]); mB.push([]);
-        for (var j = 0; j < RK; j++) {
-          var p = prob(i, j);
-          mA[i].push(SAFE[i][j] ? 1 : (rng() < p ? 1 : 0));
-          mB[i].push(SAFE[i][j] ? 1 : (rng() < p ? 1 : 0));
-        }
-      }
+      for (var q = 0; q < Q; q++) { mA.push(drawRow(q)); mB.push(drawRow(q)); }
     }
 
-    var AMBER = '#ffa347', BLUE = '#4f8cff';
+    var AMBER = '#ffa347', BLUE = '#4f8cff', OWN = '#dbe4ff', DENSE = '#52e0ff', DROP = '#94aad7';
+    function paintCell(g, i, j, st, mass, mode, other) {
+      var col, al;
+      if (mode === 'diff') {
+        var a = st > 0, b = other > 0;                     // attended in this rollout / in the partner
+        if (st === 3 && other === 3) { col = OWN; al = 0.22; }
+        else if (a !== b) { col = a ? AMBER : BLUE; al = 1; }
+        else if (a) { col = (st === 2 ? DENSE : AMBER); al = 0.16; }
+        else { col = DROP; al = 0.05 + 0.5 * mass; }
+      } else {
+        if (st === 3) { col = OWN; al = 0.92; }
+        else if (st === 2) { col = DENSE; al = 0.5; }
+        else if (st === 1) { col = AMBER; al = 0.95; }
+        else { col = DROP; al = 0.05 + 0.5 * mass; }
+      }
+      g.globalAlpha = al; g.fillStyle = col;
+      g.fillRect(j * CELL + 1, i * CELL + 1, CELL - 2, CELL - 2);
+    }
     function draw(canvas, mode) {
       var g = canvas.getContext('2d');
-      g.clearRect(0, 0, RK * CELL, RQ * CELL);
-      for (var i = 0; i < RQ; i++) {
-        for (var j = 0; j < RK; j++) {
-          var x = j * CELL, y = i * CELL, p = prob(i, j);
-          var a = mA[i][j], b = mB[i][j], col, al = 1;
-          if (mode === 'diff') {
-            if (SAFE[i][j]) { col = '#dbe4ff'; al = 0.22; }
-            else if (a !== b) { col = a ? AMBER : BLUE; al = 1; }
-            else if (a) { col = AMBER; al = 0.16; }
-            else { col = '#94aad7'; al = 0.05 + 0.1 * p; }
-          } else {
-            var m = mode === 'a1' ? a : b;
-            if (SAFE[i][j]) { col = '#dbe4ff'; al = 0.9; }
-            else if (m) { col = AMBER; al = 0.95; }
-            else { col = '#94aad7'; al = 0.05 + 0.2 * p; }
-          }
-          g.globalAlpha = al; g.fillStyle = col;
-          g.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
-        }
+      g.clearRect(0, 0, Q * CELL, Q * CELL);
+      for (var i = 0; i < Q; i++) for (var j = 0; j < Q; j++) {
+        var st = mode === 'a2' ? mB[i][j] : mA[i][j];
+        var other = mode === 'diff' ? mB[i][j] : 0;
+        paintCell(g, i, j, st, M[i][j], mode, other);
       }
       g.globalAlpha = 1;
     }
 
     function render() {
       draw(c1, 'a1'); draw(c2, 'a2'); draw(c3, 'diff');
-      var cand = 0, k1 = 0, k2 = 0, d = 0;
-      for (var i = 0; i < RQ; i++) for (var j = 0; j < RK; j++) {
-        if (SAFE[i][j]) continue;
-        cand++; k1 += mA[i][j]; k2 += mB[i][j]; if (mA[i][j] !== mB[i][j]) d++;
+      var d1 = 0, d2 = 0, df = 0, cells = 0;
+      for (var i = 0; i < Q; i++) {
+        if (mA[i][0] === 2) d1++;                           // a dense row sets every cell to 2
+        if (mB[i][0] === 2) d2++;
+        for (var j = 0; j < Q; j++) {
+          if (i === j) continue;
+          cells++;
+          var a = mA[i][j] > 0, b = mB[i][j] > 0;
+          if (a !== b) df++;
+        }
       }
-      stats.k1.textContent = Math.round(100 * k1 / cand) + '%';
-      stats.k2.textContent = Math.round(100 * k2 / cand) + '%';
-      stats.d.textContent = Math.round(100 * d / cand) + '%';
-      oT.textContent = T.toFixed(2); oB.textContent = (B0 >= 0 ? '+' : '') + B0.toFixed(1);
+      stats.d1.textContent = Math.round(100 * d1 / Q) + '%';
+      stats.d2.textContent = Math.round(100 * d2 / Q) + '%';
+      stats.df.textContent = Math.round(100 * df / cells) + '%';
+      oT.textContent = T.toFixed(2); oK.textContent = KAPPA.toFixed(2);
       sT.style.setProperty('--fill', ((sT.value - sT.min) / (sT.max - sT.min) * 100) + '%');
-      sB.style.setProperty('--fill', ((sB.value - sB.min) / (sB.max - sB.min) * 100) + '%');
+      sK.style.setProperty('--fill', ((sK.value - sK.min) / (sK.max - sK.min) * 100) + '%');
     }
     function resample() { seed = (Math.random() * 1e9) | 0; sample(); render(); }
 
     sT.addEventListener('input', function () { T = parseFloat(sT.value); sample(); render(); });
-    sB.addEventListener('input', function () { B0 = parseFloat(sB.value); sample(); render(); });
+    sK.addEventListener('input', function () { KAPPA = parseFloat(sK.value); sample(); render(); });
     btn.addEventListener('click', function () { auto(false); resample(); });
 
     var timer = 0, on = false;

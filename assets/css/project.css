@@ -350,3 +350,7 @@ table.wb.mini tr.gpu th, table.wb.mini tr.gpu td { color: var(--text-3); border-
 .affil { margin-top: 4px; font: 400 13.5px/1.5 var(--sans); letter-spacing: 0; color: var(--text-3); }
 .author-list a { color: inherit; text-decoration: underline; text-decoration-color: rgba(148, 170, 215, 0.28); text-decoration-thickness: 1px; text-underline-offset: 4px; transition: color 0.2s, text-decoration-color 0.2s; }
 .author-list a:hover, .author-list a:focus-visible { color: var(--text); text-decoration-color: var(--accent); }
+
+/* affiliation markers in author lists */
+.author-list sup, .affil sup { font-size: 0.68em; line-height: 0; margin-left: 1px; color: var(--text-3); }
+.affil sup { margin-left: 0; margin-right: 2px; }

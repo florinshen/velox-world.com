@@ -117,7 +117,7 @@
       "name": "Routing Policy Optimization for Online Diffusion Reinforcement Learning",
       "alternateName": "RPO",
       "url": "https://velox-world.com/rpo/",
-      "description": "An online diffusion reinforcement-learning method that treats attention routing as a discrete policy and restores dense attention at inference.",
+      "description": "An online diffusion reinforcement-learning method that explores by routing attention, with routes drawn from the generator's own attention mass, and restores dense attention at inference.",
       "image": "https://media.velox-world.com/assets/img/og-rpo.png",
       "keywords": ["diffusion models", "reinforcement learning", "attention routing", "visual generation"],
       "parentOrganization": { "@id": "https://velox-world.com/#org" }
@@ -355,11 +355,11 @@
           <div class="body">
             <p class="kicker">RPO · Aligned</p>
             <h3>Routing Policy Optimization for online diffusion RL</h3>
-            <p>Attention routing becomes a discrete policy. Two matched rollouts differ only in their sampled routes, so one reward difference is enough to learn, and inference goes back to dense attention with the original sampler.</p>
+            <p>Exploration moves inside attention: routes are drawn from the generator's own attention mass, two matched rollouts differ only in their routes, and inference goes back to dense attention with the original sampler.</p>
             <div class="facts">
               <div class="fact"><b>24.1</b><small>GPU-hours · Wan2.2</small></div>
               <div class="fact"><b>3.1–4.2×</b><small>less than GRPO</small></div>
-              <div class="fact"><b>+3</b><small>HPSv3 · dense eval</small></div>
+              <div class="fact"><b>½</b><small>steps to pass Flow-GRPO · SD3.5</small></div>
             </div>
             <span class="go">Open the RPO project <span class="arr" aria-hidden="true">→</span></span>
           </div>

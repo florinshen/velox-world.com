@@ -4,12 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>RPO — Routing Policy Optimization for online diffusion RL · Velox World</title>
-<meta name="description" content="Routing Policy Optimization treats attention routing as a discrete policy for online diffusion RL, using 3.1–4.2× less reported training compute than GRPO baselines.">
+<meta name="description" content="Routing Policy Optimization (RPO) explores by routing attention instead of perturbing the sampler: routes are drawn from the generator's own attention mass, two matched rollouts give the advantage, and inference restores dense attention. 3.1–4.2× less reported training compute than GRPO baselines on Wan2.2.">
+<meta name="author" content="Qiuhong Shen, Yiding Yang, Yuxin Zhang, Xinwei Huang, Minxuan Lin, Bo Liu, Hao Kang, Haotian Yang, Yizhi Wang, Chongyang Ma, Xinchao Wang">
 <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1, max-snippet:-1">
 <meta name="googlebot" content="index, follow, max-image-preview:large, max-video-preview:-1, max-snippet:-1">
 <meta name="theme-color" content="#04060b">
 <meta name="color-scheme" content="dark">
 <link rel="canonical" href="https://velox-world.com/rpo/">
+<meta name="citation_title" content="Routing Policy Optimization for Online Diffusion Reinforcement Learning">
+<meta name="citation_author" content="Shen, Qiuhong">
+<meta name="citation_author" content="Yang, Yiding">
+<meta name="citation_author" content="Zhang, Yuxin">
+<meta name="citation_author" content="Huang, Xinwei">
+<meta name="citation_author" content="Lin, Minxuan">
+<meta name="citation_author" content="Liu, Bo">
+<meta name="citation_author" content="Kang, Hao">
+<meta name="citation_author" content="Yang, Haotian">
+<meta name="citation_author" content="Wang, Yizhi">
+<meta name="citation_author" content="Ma, Chongyang">
+<meta name="citation_author" content="Wang, Xinchao">
+<meta name="citation_author_institution" content="National University of Singapore">
+<meta name="citation_author_institution" content="ByteDance">
 <link rel="alternate" hreflang="en" href="https://velox-world.com/rpo/">
 <link rel="alternate" hreflang="x-default" href="https://velox-world.com/rpo/">
 <link rel="alternate" type="text/plain" href="https://velox-world.com/llms.txt" title="Velox World — LLM summary">
@@ -20,7 +35,7 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Velox World">
 <meta property="og:title" content="RPO: Routing Policy Optimization for online diffusion RL">
-<meta property="og:description" content="Explore inside the generator, not the sampler. Attention routing as a discrete policy, with dense inference restored.">
+<meta property="og:description" content="Explore inside the generator, not the sampler: routes drawn from native attention mass, scored by a Gaussian likelihood around the dense velocity, dense inference restored.">
 <meta property="og:url" content="https://velox-world.com/rpo/">
 <meta property="og:image" content="https://media.velox-world.com/assets/img/og-rpo.png">
 <meta property="og:image:secure_url" content="https://media.velox-world.com/assets/img/og-rpo.png">
@@ -31,7 +46,7 @@
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="RPO: Routing Policy Optimization for online diffusion RL">
-<meta name="twitter:description" content="Explore inside the generator, not the sampler. Attention routing as a discrete policy, with dense inference restored.">
+<meta name="twitter:description" content="Explore inside the generator, not the sampler: routes drawn from native attention mass, scored by a Gaussian likelihood around the dense velocity, dense inference restored.">
 <meta name="twitter:image" content="https://media.velox-world.com/assets/img/og-rpo.png">
 <meta name="twitter:image:alt" content="RPO — Routing Policy Optimization for online diffusion reinforcement learning">
 
@@ -47,7 +62,20 @@
     "@type": "ScholarlyArticle",
     "@id": "https://velox-world.com/rpo/#article",
     "headline": "Routing Policy Optimization for Online Diffusion Reinforcement Learning",
-    "description": "Attention routing as a discrete policy: two matched rollouts differ only in their sampled attention routes, and inference restores dense attention with the original sampler.",
+    "description": "Attention routing as the exploration action: routes are drawn from the generator's native attention mass, two matched rollouts differ only in their routes, a Gaussian likelihood around the dense velocity scores the routed steps, and inference restores dense attention with the original sampler.",
+    "author": [
+      { "@type": "Person", "name": "Qiuhong Shen", "url": "https://florinshen.github.io/", "affiliation": { "@type": "CollegeOrUniversity", "name": "National University of Singapore" } },
+      { "@type": "Person", "name": "Yiding Yang", "affiliation": { "@type": "Organization", "name": "ByteDance" } },
+      { "@type": "Person", "name": "Yuxin Zhang", "affiliation": { "@type": "Organization", "name": "ByteDance" } },
+      { "@type": "Person", "name": "Xinwei Huang", "affiliation": { "@type": "Organization", "name": "ByteDance" } },
+      { "@type": "Person", "name": "Minxuan Lin", "affiliation": { "@type": "Organization", "name": "ByteDance" } },
+      { "@type": "Person", "name": "Bo Liu", "affiliation": { "@type": "Organization", "name": "ByteDance" } },
+      { "@type": "Person", "name": "Hao Kang", "affiliation": { "@type": "Organization", "name": "ByteDance" } },
+      { "@type": "Person", "name": "Haotian Yang", "affiliation": { "@type": "Organization", "name": "ByteDance" } },
+      { "@type": "Person", "name": "Yizhi Wang", "affiliation": { "@type": "Organization", "name": "ByteDance" } },
+      { "@type": "Person", "name": "Chongyang Ma", "affiliation": { "@type": "Organization", "name": "ByteDance" } },
+      { "@type": "Person", "name": "Xinchao Wang", "url": "https://sites.google.com/site/sitexinchaowang/", "affiliation": { "@type": "CollegeOrUniversity", "name": "National University of Singapore" } }
+    ],
     "url": "https://velox-world.com/rpo/",
     "mainEntityOfPage": { "@id": "https://velox-world.com/rpo/#webpage" },
     "image": "https://media.velox-world.com/assets/img/og-rpo.png",
@@ -96,13 +124,28 @@
       <p class="crumbs rv"><a href="../">Velox World</a><span>/</span><span>Research</span><span>/</span><span style="color:var(--text)">RPO</span><span class="state"><i></i>Preprint · arXiv soon</span></p>
       <h1 class="p-title rv" style="--d:60ms"><span class="grad">RPO</span></h1>
       <p class="p-sub rv" style="--d:120ms">Routing Policy Optimization <em>for online diffusion reinforcement learning.</em></p>
-      <p class="lead p-lead rv" style="--d:180ms">Reinforcement learning can align visual generators with rewards beyond pretraining, but score-function methods usually inject noise into the reverse trajectory and pay for it with large groups of complete rollouts. RPO moves exploration <b>inside</b> the generator: attention routing becomes a discrete policy, and inference returns to dense attention.</p>
+      <div class="authors rv" style="--d:150ms">
+        <ul class="author-list" aria-label="Authors">
+          <li><a href="https://florinshen.github.io/" target="_blank" rel="noopener">Qiuhong Shen</a><sup>1</sup></li>
+          <li>Yiding Yang<sup>2</sup></li>
+          <li>Yuxin Zhang<sup>2</sup></li>
+          <li>Xinwei Huang<sup>2</sup></li>
+          <li>Minxuan Lin<sup>2</sup></li>
+          <li>Bo Liu<sup>2</sup></li>
+          <li>Hao Kang<sup>2</sup></li>
+          <li>Haotian Yang<sup>2</sup></li>
+          <li>Yizhi Wang<sup>2</sup></li>
+          <li>Chongyang Ma<sup>2</sup></li>
+          <li><a href="https://sites.google.com/site/sitexinchaowang/" target="_blank" rel="noopener">Xinchao Wang</a><sup>1</sup><sup>*</sup></li>
+        </ul>
+        <p class="affil"><sup>1</sup> National University of Singapore &nbsp;·&nbsp; <sup>2</sup> ByteDance &nbsp;·&nbsp; <sup>*</sup> Corresponding author</p>
+      </div>
+      <p class="lead p-lead rv" style="--d:180ms">Reinforcement learning can align visual generators with rewards beyond pretraining, but score-function methods usually inject noise into the reverse trajectory and pay for it with large groups of complete rollouts. RPO moves exploration <b>inside</b> the generator: attention routing, drawn from the generator's own attention mass, becomes the stochastic action, and inference returns to dense attention with the original sampler.</p>
       <div class="p-cta rv" style="--d:240ms">
         <a class="btn primary" href="#viewer">Compare base and RPO <span class="arr" aria-hidden="true">↓</span></a>
         <a class="btn" href="#release">Paper <span class="soon">arXiv · soon</span></a>
         <a class="btn" href="#release">Code <span class="soon">soon</span></a>
       </div>
-      <p class="byline rv" style="--d:300ms">Authors and affiliations are listed with the preprint.</p>
     </div>
   </section>
 
@@ -170,14 +213,14 @@
         <p class="d">Than Flow-GRPO and DanceGRPO respectively, with the same HPSv3 reward.</p>
       </div>
       <div class="stat">
-        <div class="v">+3</div>
-        <p class="k">Dense-model reward gain</p>
-        <p class="d">Reached within about 15 steps and held through step 50, measured on the dense model.</p>
+        <div class="v">25<small>/ 50</small></div>
+        <p class="k">Steps to pass Flow-GRPO</p>
+        <p class="d">On SD3.5, the dense reward at step 25 already exceeds Flow-GRPO's step-50 value; it ends 1.1 points higher (one seed).</p>
       </div>
       <div class="stat">
         <div class="v">2</div>
         <p class="k">Rollouts per group</p>
-        <p class="d">A matched pair, against G = 8 for DanceGRPO. Both share prompt and noise.</p>
+        <p class="d">A matched pair, against G = 8 for DanceGRPO. Both share prompt and noise; 64 pairs per step.</p>
       </div>
     </div>
   </section>
@@ -191,21 +234,22 @@
           <h2 style="margin-top:22px;font-size:clamp(30px,3.8vw,48px);letter-spacing:-0.024em;line-height:1.1;text-wrap:balance">Put the randomness inside attention, not on the sampler's path.</h2>
           <div class="prose" style="margin-top:26px">
             <p>Sampler-space RL such as Flow-GRPO and DanceGRPO explores by perturbing the reverse process, then estimates an advantage from a group of complete stochastic rollouts.</p>
-            <p>RPO keeps the deterministic sampler. At one denoising level, each query block keeps a random subset of its candidate key blocks, with <b>Bernoulli probabilities taken from the generator's own query–key affinities</b>. The sampled masks are the actions.</p>
+            <p>RPO keeps the deterministic sampler. At a few selected denoising levels, each query block either stays dense or keeps its own block plus key blocks drawn <b>in proportion to the generator's native attention mass</b>. The sampled route perturbs that step's velocity, and a Gaussian likelihood around the dense velocity scores it.</p>
           </div>
         </div>
 
         <div class="compare rv" style="--d:100ms" role="table" aria-label="Sampler-space RL compared with RPO">
           <div class="c-head" role="row"><span role="columnheader"></span><span role="columnheader">Sampler-space RL</span><span role="columnheader" class="us">RPO</span></div>
-          <div class="c-row" role="row"><span class="k" role="rowheader">Exploration</span><span role="cell">Noise injected into the reverse trajectory</span><span role="cell" class="us">Bernoulli routes inside attention</span></div>
+          <div class="c-row" role="row"><span class="k" role="rowheader">Exploration</span><span role="cell">Noise injected into the reverse trajectory</span><span role="cell" class="us">Routes drawn from the generator's own attention mass</span></div>
           <div class="c-row" role="row"><span class="k" role="rowheader">Per update</span><span role="cell">Groups of complete rollouts, G = 8 in DanceGRPO</span><span role="cell" class="us">Matched pairs, G = 2, 64 pairs per step</span></div>
+          <div class="c-row" role="row"><span class="k" role="rowheader">Likelihood</span><span role="cell">Gaussian transition of an SDE step</span><span role="cell" class="us">Gaussian around the dense velocity</span></div>
           <div class="c-row" role="row"><span class="k" role="rowheader">Advantage</span><span role="cell">Group statistics over the rollouts</span><span role="cell" class="us">Reward difference of the pair</span></div>
           <div class="c-row" role="row"><span class="k" role="rowheader">Sampler</span><span role="cell">Stochastic during training</span><span role="cell" class="us">Original, deterministic, throughout</span></div>
         </div>
       </div>
 
       <div class="prose rv" style="margin-top:clamp(36px,5vw,64px);max-width:46em">
-        <p>Two rollouts share the prompt, the initial latent, the routed level and the routed layers. They differ <b>only</b> in their masks, so their reward difference measures the effect of the two routing choices. Below, each cell is one candidate key block. Change how sharp the policy is and watch the two masks agree or diverge.</p>
+        <p>Two rollouts share the prompt, the initial latent, the routed levels and the anchor layers. They differ <b>only</b> in their routing seeds, so their reward difference measures the effect of the two routes. Below, each row is a query block. Change the temperature and the keep ratio, and watch the two routes agree or diverge.</p>
       </div>
 
       <div class="stage rv" style="margin-top:28px">
@@ -217,56 +261,57 @@
         </div>
         <div style="padding:20px">
           <div class="mask-lab">
-            <div class="mask-cell"><h5><span class="tag">a₁</span>Rollout 1</h5><canvas id="m-a1" aria-label="Sampled routing mask for rollout 1"></canvas><p>Keeps <b id="m-k1" style="color:var(--text)">—</b> of candidates</p></div>
-            <div class="mask-cell"><h5><span class="tag">a₂</span>Rollout 2</h5><canvas id="m-a2" aria-label="Sampled routing mask for rollout 2"></canvas><p>Keeps <b id="m-k2" style="color:var(--text)">—</b> of candidates</p></div>
-            <div class="mask-cell"><h5><span class="tag">Δ</span>Where they differ</h5><canvas id="m-diff" aria-label="Cells where the two masks disagree"></canvas><p>Differ on <b id="m-d" style="color:var(--amber)">—</b> of candidates</p></div>
+            <div class="mask-cell"><h5><span class="tag">a₁</span>Rollout 1</h5><canvas id="m-a1" aria-label="Sampled routing mask for rollout 1"></canvas><p>Dense rows <b id="m-d1" style="color:var(--text)">—</b></p></div>
+            <div class="mask-cell"><h5><span class="tag">a₂</span>Rollout 2</h5><canvas id="m-a2" aria-label="Sampled routing mask for rollout 2"></canvas><p>Dense rows <b id="m-d2" style="color:var(--text)">—</b></p></div>
+            <div class="mask-cell"><h5><span class="tag">Δ</span>Where they differ</h5><canvas id="m-diff" aria-label="Cells where the two masks disagree"></canvas><p>Differ on <b id="m-d" style="color:var(--amber)">—</b> of cells</p></div>
           </div>
         </div>
         <div class="ctl-row">
-          <label class="ctl" for="m-T">Temperature T <input id="m-T" type="range" min="0.4" max="2.5" step="0.05" value="1"><output id="m-Tv">1.00</output></label>
-          <label class="ctl" for="m-b">Offset β₀ <input id="m-b" type="range" min="-2" max="2" step="0.1" value="0"><output id="m-bv">+0.0</output></label>
+          <label class="ctl" for="m-T">Temperature T <input id="m-T" type="range" min="0.5" max="3" step="0.1" value="1.6"><output id="m-Tv">1.60</output></label>
+          <label class="ctl" for="m-k">Keep ratio κ <input id="m-k" type="range" min="0.1" max="0.5" step="0.05" value="0.25"><output id="m-kv">0.25</output></label>
         </div>
         <div class="stage-foot">
-          <span class="key"><i style="--c:#dbe4ff"></i>Safety block, always active</span>
+          <span class="key"><i style="--c:#dbe4ff"></i>Own block, always kept</span>
           <span class="key"><i style="--c:#ffa347"></i>Kept candidate</span>
-          <span class="key"><i style="--c:rgba(148,170,215,.35)"></i>Dropped (shade = keep probability)</span>
+          <span class="key"><i style="--c:#52e0ff"></i>Dense row: sees every block</span>
+          <span class="key"><i style="--c:rgba(148,170,215,.35)"></i>Dropped (shade = attention mass)</span>
           <span class="key"><i style="--c:#ffa347"></i>Δ: kept only in a₁</span>
           <span class="key"><i style="--c:#4f8cff"></i>Δ: kept only in a₂</span>
         </div>
       </div>
-      <p class="byline" style="margin-top:14px">Illustration of the sampling rule p = σ(z / T + β₀) on toy logits, not real attention maps.</p>
+      <p class="byline" style="margin-top:14px">Illustration of the draw on toy attention masses, not real attention maps. Each row ranks its candidate blocks and a dense option with Gumbel noise at temperature T, then keeps its own block plus the top κ·Q candidates, or goes dense.</p>
 
       <div class="steps five" style="margin-top:56px">
         <div class="step rv">
           <p class="n">01</p>
-          <h3>Denoise densely</h3>
-          <p>Run the reverse process as usual down to a sampled routed level. The sampler is untouched.</p>
+          <h3>Score with dense attention</h3>
+          <p>At a routed level, a no-gradient pass measures how much attention each query block puts on each key block.</p>
         </div>
         <div class="step rv" style="--d:60ms">
           <p class="n">02</p>
-          <h3>Draw two masks</h3>
-          <p>Safety blocks stay on. Each candidate block is kept with its Bernoulli probability.</p>
+          <h3>Draw two routes</h3>
+          <p>Each block stays dense or keeps its own block plus candidates, drawn in proportion to that attention mass.</p>
         </div>
         <div class="step rv" style="--d:120ms">
           <p class="n">03</p>
-          <h3>Finish the pair</h3>
-          <p>Same prompt, latent, level and layers. Only the sampled routes differ.</p>
+          <h3>Step with the routed velocity</h3>
+          <p>Same prompt, latent, levels and anchor layers (which stay dense). Only the routing seeds differ.</p>
         </div>
         <div class="step rv" style="--d:180ms">
           <p class="n">04</p>
           <h3>Score the difference</h3>
-          <p>The reward difference becomes the advantage for the recorded routing actions.</p>
+          <p>The reward difference of the pair is the advantage, with opposite signs for the two members.</p>
         </div>
         <div class="step rv" style="--d:240ms">
           <p class="n">05</p>
-          <h3>Update shared weights</h3>
-          <p>A replay likelihood gradient updates the attention parameters dense inference reuses.</p>
+          <h3>Update the dense velocity</h3>
+          <p>A Gaussian likelihood around the dense velocity is replayed with gradient, so the update lands on the field the sampler uses.</p>
         </div>
       </div>
 
       <div class="note rv" style="margin-top:20px">
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M10 9v5M10 6.2v.1" stroke-linecap="round"/></svg>
-        <p><b>Nothing changes at inference.</b> All masks are removed: dense attention and the original deterministic sampler. The gains transfer because the routing policy reuses the generator's native attention parameters.</p>
+        <p><b>Nothing changes at inference.</b> All masks are removed: dense attention and the original deterministic sampler. The gains transfer because the loss differentiates the dense velocity that the sampler evaluates.</p>
       </div>
     </div>
   </section>
@@ -282,50 +327,50 @@
 
       <div class="split flip">
         <div class="stage rv">
-          <div class="stage-bar"><span class="ttl"><i></i>Dense evaluation gain · Wan2.2, HPSv3 reward</span></div>
+          <div class="stage-bar"><span class="ttl"><i></i>Dense validation reward · SD3.5-Medium, HPSv3</span></div>
           <div style="padding: 18px 18px 8px">
-            <svg viewBox="0 0 640 276" id="gain-svg" role="img" aria-label="Dense evaluation reward gain over each method's own step zero, over 50 training steps. RPO reaches about +3 within 15 steps and holds. Flow-GRPO dips to about −3 at step 10 and recovers to +2.7 at step 50. DanceGRPO stays near zero.">
-              <g stroke="rgba(148,170,215,.12)"><path d="M50 30H450M50 79H450M50 179H450M50 228H450"/></g>
-              <path d="M50 129H450" stroke="rgba(148,170,215,.45)"/>
-              <path d="M50 30V228" stroke="rgba(148,170,215,.3)"/>
+            <svg viewBox="0 0 640 276" id="gain-svg" role="img" aria-label="Raw HPSv3 reward of the dense SD3.5 Medium model on validation prompts over 50 training steps. RPO rises from 3.94 to 8.90 at step 25, peaks at 10.20 at step 40 and ends at 9.91. Flow-GRPO rises from 3.96 to 8.81 at step 50.">
+              <g stroke="rgba(148,170,215,.12)"><path d="M56 57H450M56 107H450M56 157H450M56 207H450"/></g>
+              <path d="M56 232H450" stroke="rgba(148,170,215,.45)"/>
+              <path d="M56 32V232" stroke="rgba(148,170,215,.3)"/>
               <g fill="#8792a8" font-family="ui-monospace,Menlo,monospace" font-size="14" text-anchor="end">
-                <text x="42" y="34">+3</text><text x="42" y="83">+1.5</text><text x="42" y="133">0</text><text x="42" y="183">−1.5</text><text x="42" y="232">−3</text>
+                <text x="48" y="62">10</text><text x="48" y="112">8</text><text x="48" y="162">6</text><text x="48" y="212">4</text>
               </g>
               <g fill="#8792a8" font-family="ui-monospace,Menlo,monospace" font-size="14" text-anchor="middle">
-                <text x="50" y="252">0</text><text x="144" y="252">10</text><text x="238" y="252">20</text><text x="332" y="252">30</text><text x="450" y="252">50</text>
+                <text x="56" y="252">0</text><text x="135" y="252">10</text><text x="214" y="252">20</text><text x="292" y="252">30</text><text x="371" y="252">40</text><text x="450" y="252">50</text>
               </g>
               <text x="450" y="272" fill="#8792a8" font-family="ui-monospace,Menlo,monospace" font-size="14" text-anchor="end">training step</text>
-              <!-- DanceGRPO: peak then a 0..+0.2 band -->
-              <rect x="97" y="125" width="353" height="4" fill="#6d9bff" opacity=".35"/>
-              <path d="M50 129 97 125" stroke="#6d9bff" stroke-width="2" fill="none"/>
-              <circle cx="97" cy="125" r="4.5" fill="#6d9bff"/>
+              <!-- Flow-GRPO final value, and RPO at step 25 -->
+              <path d="M56 87H450" stroke="#b6a6ff" stroke-opacity=".5" stroke-dasharray="4 5"/>
+              <path d="M253 232V85" stroke="#ffa347" stroke-opacity=".45" stroke-dasharray="2 5"/>
               <!-- Flow-GRPO -->
-              <path d="M50 129 144 228 450 52" stroke="#b6a6ff" stroke-width="2.4" fill="none" stroke-dasharray="1 0"/>
-              <path d="M144 228 450 52" stroke="#b6a6ff" stroke-width="2.4" fill="none" stroke-dasharray="3 5"/>
-              <circle cx="144" cy="228" r="5" fill="#b6a6ff"/><circle cx="450" cy="52" r="5" fill="#b6a6ff"/>
+              <path d="M56 208 450 87" stroke="#b6a6ff" stroke-width="2.4" fill="none" stroke-dasharray="3 5"/>
+              <circle cx="56" cy="208" r="4.5" fill="#b6a6ff"/><circle cx="450" cy="87" r="5" fill="#b6a6ff"/>
               <!-- RPO -->
-              <path d="M50 129 97 44 191 35 450 30" stroke="#ffa347" stroke-width="3.2" fill="none"/>
-              <circle cx="97" cy="44" r="5.5" fill="#ffa347"/><circle cx="191" cy="35" r="5.5" fill="#ffa347"/><circle cx="450" cy="30" r="5.5" fill="#ffa347"/>
+              <path d="M56 209 253 85 371 52 450 59" stroke="#ffa347" stroke-width="3.2" fill="none" stroke-linejoin="round"/>
+              <circle cx="56" cy="209" r="4.5" fill="#ffa347"/><circle cx="253" cy="85" r="5.5" fill="#ffa347"/><circle cx="371" cy="52" r="5.5" fill="#ffa347"/><circle cx="450" cy="59" r="5.5" fill="#ffa347"/>
+              <g font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#ffa347">
+                <text x="246" y="68" text-anchor="end">8.90 at step 25</text>
+                <text x="371" y="40" text-anchor="middle">10.20</text>
+              </g>
               <g font-family="-apple-system,'SF Pro Text',Inter,sans-serif" font-size="17" font-weight="600">
-                <text x="464" y="26" fill="#ffa347">RPO ≈ +3</text>
-                <text x="464" y="62" fill="#b6a6ff">Flow-GRPO +2.7</text>
-                <text x="464" y="126" fill="#6d9bff">DanceGRPO</text>
-                <text x="464" y="146" fill="#6d9bff" font-size="14" font-weight="500">0 to +0.2</text>
+                <text x="464" y="58" fill="#ffa347">RPO 9.91</text>
+                <text x="464" y="92" fill="#b6a6ff">Flow-GRPO 8.81</text>
               </g>
             </svg>
           </div>
           <div class="stage-foot">
-            <span style="text-transform:none;letter-spacing:0;font:400 13px/1.5 var(--sans)">Markers are values stated in the paper's text; lines between them are schematic. Gain is measured against each method's own step-0 score.</span>
+            <span style="text-transform:none;letter-spacing:0;font:400 13px/1.5 var(--sans)">Markers are values stated in the paper's text; lines between them are schematic. Raw HPSv3 of the dense model on 64 fixed validation prompts, 28-step sampler, one training seed.</span>
           </div>
         </div>
 
         <div class="prose rv" style="--d:100ms">
-          <p><b>RPO reaches its final gain within about 15 steps and keeps it.</b> It gains +2.17 by step 5 and about +2.9 by step 15, then stays near +3 through step 50.</p>
-          <p><b>Flow-GRPO follows its training reward.</b> The dense model dips to about −3 at step 10 and only recovers to +2.7 by step 50, so it needs the whole 50-step window to approach the level RPO reaches within about 15.</p>
-          <p><b>DanceGRPO accumulates almost no gain,</b> peaking at +0.29 at step 5 and staying between about 0 and +0.2.</p>
+          <p><b>RPO passes Flow-GRPO's final reward in half the steps.</b> The dense model scores 8.90 at step 25, above Flow-GRPO's step-50 score of 8.81.</p>
+          <p><b>It keeps climbing.</b> RPO peaks at 10.20 at step 40 and ends at 9.91, a gain of +5.97 over its step-zero score, against +4.86 for Flow-GRPO, which ends 1.1 points lower.</p>
+          <p><b>It is not ahead everywhere.</b> Flow-GRPO starts slightly faster at step 5, and RPO leads from step 10 onward. Both curves come from a single training seed.</p>
           <div class="note">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M10 9v5M10 6.2v.1" stroke-linecap="round"/></svg>
-            <p>RPO collects 64 matched pairs per step and routes a single denoising level; DanceGRPO uses groups of G = 8 and updates the full model.</p>
+            <p>Both methods train the same LoRA adapters with the same HPSv3 reward and 10-step sampler. RPO collects 64 matched pairs per step; on Wan2.2, DanceGRPO uses groups of G = 8 and updates the full model.</p>
           </div>
         </div>
       </div>

@@ -75,7 +75,21 @@ Canonical page: https://velox-world.com/rpo/
 
 Full title: Routing Policy Optimization for Online Diffusion Reinforcement Learning
 
-Summary: RPO treats attention routing inside a visual generator as a discrete policy. At one denoising level, each query block retains a sampled subset of candidate key blocks. Bernoulli probabilities are derived from the generator's query-key affinities. Two matched rollouts differ only in their sampled routes, and the reward difference between those rollouts supplies the advantage. At inference time, dense attention and the original deterministic sampler are restored.
+Summary: RPO explores by routing attention inside a visual generator instead of perturbing the sampler. At a few selected denoising levels, each query block either stays dense or keeps its own block plus key blocks drawn in proportion to the generator's native attention mass. The sampled route perturbs the velocity of that step, and a Gaussian likelihood around the dense velocity scores it. Two matched rollouts differ only in their sampled routes, and the reward difference between those rollouts supplies the advantage. At inference time, dense attention and the original deterministic sampler are restored.
+
+Authors listed on the website (superscripts: 1 = National University of Singapore, 2 = ByteDance):
+
+- Qiuhong Shen (1) — https://florinshen.github.io/
+- Yiding Yang (2)
+- Yuxin Zhang (2)
+- Xinwei Huang (2)
+- Minxuan Lin (2)
+- Bo Liu (2)
+- Hao Kang (2)
+- Haotian Yang (2)
+- Yizhi Wang (2)
+- Chongyang Ma (2)
+- Xinchao Wang (1), corresponding author — https://sites.google.com/site/sitexinchaowang/
 
 Reported quantitative results on Wan2.2-TI2V-5B:
 
@@ -83,7 +97,14 @@ Reported quantitative results on Wan2.2-TI2V-5B:
 - Reported as 3.1 times less training compute than Flow-GRPO.
 - Reported as 4.2 times less training compute than DanceGRPO.
 - The compared runs are not compute matched.
-- The website reports a gain of approximately 3 HPSv3 points under dense evaluation.
+- VBench overall score 82.00 against 81.61 for the base model; DanceGRPO 81.46 and Flow-GRPO 81.19.
+
+Reported results on SD3.5-Medium (raw HPSv3 of the dense model on 64 fixed validation prompts, one training seed):
+
+- RPO scores 8.90 at step 25, above Flow-GRPO's step-50 score of 8.81.
+- RPO peaks at 10.20 at step 40 and ends at 9.91, a gain of +5.97; Flow-GRPO gains +4.86, so RPO ends 1.1 points higher.
+- Flow-GRPO starts slightly faster at step 5; RPO leads from step 10 onward.
+- DrawBench: ImageReward -0.54 to -0.18, UnifiedReward 2.10 to 2.32, DeQA-Score 3.35 to 3.56.
 
 Public galleries:
 
@@ -94,7 +115,7 @@ Important qualifiers:
 
 - Dense attention and the original sampler are restored for inference.
 - Training-compute comparisons are not compute matched.
-- The preprint, author list, and code release are pending unless the canonical RPO page states otherwise.
+- The preprint and code release are pending unless the canonical RPO page states otherwise.
 - Do not infer unpublished prompts or metadata from numbered gallery cases.
 - Do not describe the work as peer reviewed, accepted, or published on arXiv until the canonical page changes.
 
