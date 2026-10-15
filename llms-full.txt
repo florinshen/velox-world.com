@@ -9,10 +9,11 @@ Language: English
 ## Entity
 
 - Name: Velox World
-- Type: research team
+- Type: research initiative
 - Focus: efficient world models for physical AI
 - Goal: world models that embodied agents, autonomous systems, simulators, and interactive systems can use to imagine, compare, plan, and act at interactive latency
 - Website: https://velox-world.com/
+- Contact: contact@velox-world.com
 - Public website source: https://github.com/florinshen/velox-world.com
 - Media host: https://media.velox-world.com/
 

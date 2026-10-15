@@ -1,6 +1,6 @@
 # Velox World
 
-> Velox World is a research team building efficient world models for physical AI: models that learn how the physical world looks, moves and responds to action, and run fast enough for agents to plan and act inside them. Its first two projects work on the two ends of that problem, how a world model remembers at inference time (Velox) and how a visual generator is aligned at training time (RPO). Both preprints are headed to arXiv.
+> Velox World is a research initiative building efficient world models for physical AI: models that learn how the physical world looks, moves and responds to action, and run fast enough for agents to plan and act inside them. Its first two projects work on the two ends of that problem, how a world model remembers at inference time (Velox) and how a visual generator is aligned at training time (RPO). Both preprints are headed to arXiv.
 
 Canonical site: https://velox-world.com/
 
@@ -21,6 +21,7 @@ Canonical site: https://velox-world.com/
 ## Status
 
 - Preprints: arXiv release pending. Code and results: public release planned.
+- Contact: contact@velox-world.com
 - Authors: Velox is by Qiuhong Shen (https://florinshen.github.io/), Shizun Wang (https://littlepure2333.github.io/home/) and Xinchao Wang (https://sites.google.com/site/sitexinchaowang/), National University of Singapore.
 - Authors of RPO: Qiuhong Shen, Yiding Yang, Yuxin Zhang, Xinwei Huang, Minxuan Lin, Bo Liu, Hao Kang, Haotian Yang, Yizhi Wang, Chongyang Ma and Xinchao Wang (corresponding author). Affiliations: National University of Singapore (Qiuhong Shen, Xinchao Wang) and ByteDance (the others).
 - Text prompts used to generate the shown samples are not published on the site; samples are identified by case or prompt number.
