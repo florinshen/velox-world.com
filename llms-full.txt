@@ -80,15 +80,15 @@ Summary: RPO explores by routing attention inside a visual generator instead of 
 Authors listed on the website (superscripts: 1 = National University of Singapore, 2 = ByteDance):
 
 - Qiuhong Shen (1) — https://florinshen.github.io/
-- Yiding Yang (2)
-- Yuxin Zhang (2)
+- Yiding Yang (2) — https://ihollywhy.github.io/
+- Yuxin Zhang (2) — https://zyxelsa.github.io/
 - Xinwei Huang (2)
 - Minxuan Lin (2)
 - Bo Liu (2)
 - Hao Kang (2)
-- Haotian Yang (2)
-- Yizhi Wang (2)
-- Chongyang Ma (2)
+- Haotian Yang (2) — https://yanght321.github.io/
+- Yizhi Wang (2) — https://yizhiwang96.github.io/
+- Chongyang Ma (2) — http://chongyangma.com/
 - Xinchao Wang (1), corresponding author — https://sites.google.com/site/sitexinchaowang/
 
 Reported quantitative results on Wan2.2-TI2V-5B:
