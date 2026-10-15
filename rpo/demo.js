@@ -26,11 +26,6 @@
     var range = document.getElementById('v-x');
     var playBtn = document.getElementById('v-play');
     var tabs = document.getElementById('v-tabs');
-    var out = {
-      base: document.getElementById('v-base'), rpo: document.getElementById('v-rpo'),
-      gain: document.getElementById('v-gain')
-    };
-
     var HALF = 1280, GAP = 8, H = 704;
     var x = 0.5;                       // wipe position, 0..1
     var poster = new Image();
@@ -48,7 +43,7 @@
       var s = source();
       if (!s) return;
       var xp = Math.round(x * HALF);
-      /* the clip is 2568 x 704 (A | 8px | B); the poster is the same layout at half size */
+      /* the clip and poster are 2568 x 704 (A | 8px | B). */
       var sw = s === vid ? vid.videoWidth : s.naturalWidth;
       var k = sw / (2 * HALF + GAP);
       try {
@@ -68,18 +63,13 @@
       current = n;
       posterReady = false; started = false;
       poster.onload = function () { posterReady = true; paint(); };
-      poster.src = 'https://media.velox-world.com/rpo/wan2.2/posters/' + n + '.jpg';
+      poster.src = 'https://media.velox-world.com/rpo/wan2.2/posters-v629s50/' + n + '.jpg';
       [].forEach.call(tabs.querySelectorAll('button'), function (b) { b.setAttribute('aria-selected', b === btn ? 'true' : 'false'); });
-      out.base.textContent = btn.getAttribute('data-base');
-      out.rpo.textContent = btn.getAttribute('data-rpo');
-      var gv = btn.getAttribute('data-gain');          // already signed, e.g. "+1.07" or "−1.77"
-      out.gain.textContent = gv;
-      out.gain.className = gv.charAt(0) === '\u2212' ? 'neg' : 'g';
       if (inView) attachVideo();
     }
     function attachVideo() {
       if (!current) return;
-      var url = 'https://media.velox-world.com/rpo/wan2.2/side-by-side/' + current + '.mp4';
+      var url = 'https://media.velox-world.com/rpo/wan2.2/side-by-side-v629s50/' + current + '.mp4';
       if (vid.getAttribute('data-n') !== current) {
         vid.setAttribute('data-n', current);
         started = false;

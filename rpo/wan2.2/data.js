@@ -14,13 +14,14 @@ window.COMPARE = {
    "guidance": 5,
    "width": 1280,
    "height": 704,
-   "frames": 121,
+   "frames": 13,
    "fps": 24
   },
+  "scores": false,
   "video": {
-   "dir": "side-by-side",
+   "dir": "side-by-side-v629s50",
    "ext": "mp4",
-   "poster": "posters",
+   "poster": "posters-v629s50",
    "half": 1280,
    "gap": 8,
    "height": 704
@@ -30,368 +31,368 @@ window.COMPARE = {
   {
    "i": 0,
    "prompt": "",
-   "a": 7.8851,
-   "b": 8.9556
+   "a": null,
+   "b": null
   },
   {
    "i": 1,
    "prompt": "",
-   "a": 7.9764,
-   "b": 9.3196
+   "a": null,
+   "b": null
   },
   {
    "i": 2,
    "prompt": "",
-   "a": 7.949,
-   "b": 9.3319
+   "a": null,
+   "b": null
   },
   {
    "i": 3,
    "prompt": "",
-   "a": 6.0865,
-   "b": 9.7069
+   "a": null,
+   "b": null
   },
   {
    "i": 4,
    "prompt": "",
-   "a": 7.6167,
-   "b": 9.141
+   "a": null,
+   "b": null
   },
   {
    "i": 5,
    "prompt": "",
-   "a": 8.6391,
-   "b": 6.867
+   "a": null,
+   "b": null
   },
   {
    "i": 6,
    "prompt": "",
-   "a": 9.8719,
-   "b": 9.7337
+   "a": null,
+   "b": null
   },
   {
    "i": 7,
    "prompt": "",
-   "a": 7.1662,
-   "b": 8.8979
+   "a": null,
+   "b": null
   },
   {
    "i": 8,
    "prompt": "",
-   "a": 9.3808,
-   "b": 9.4452
+   "a": null,
+   "b": null
   },
   {
    "i": 9,
    "prompt": "",
-   "a": 6.0699,
-   "b": 7.8934
+   "a": null,
+   "b": null
   },
   {
    "i": 10,
    "prompt": "",
-   "a": 6.8278,
-   "b": 8.6701
+   "a": null,
+   "b": null
   },
   {
    "i": 11,
    "prompt": "",
-   "a": 6.4886,
-   "b": 8.1326
+   "a": null,
+   "b": null
   },
   {
    "i": 12,
    "prompt": "",
-   "a": 7.38,
-   "b": 8.292
+   "a": null,
+   "b": null
   },
   {
    "i": 13,
    "prompt": "",
-   "a": 8.4584,
-   "b": 10.1335
+   "a": null,
+   "b": null
   },
   {
    "i": 14,
    "prompt": "",
-   "a": 9.5901,
-   "b": 11.5187
+   "a": null,
+   "b": null
   },
   {
    "i": 15,
    "prompt": "",
-   "a": 8.2707,
-   "b": 8.3488
+   "a": null,
+   "b": null
   },
   {
    "i": 16,
    "prompt": "",
-   "a": 7.9142,
-   "b": 8.273
+   "a": null,
+   "b": null
   },
   {
    "i": 17,
    "prompt": "",
-   "a": 10.2254,
-   "b": 9.9217
+   "a": null,
+   "b": null
   },
   {
    "i": 18,
    "prompt": "",
-   "a": 7.3232,
-   "b": 9.7014
+   "a": null,
+   "b": null
   },
   {
    "i": 19,
    "prompt": "",
-   "a": 4.9632,
-   "b": 6.9045
+   "a": null,
+   "b": null
   },
   {
    "i": 20,
    "prompt": "",
-   "a": 11.5205,
-   "b": 10.4613
+   "a": null,
+   "b": null
   },
   {
    "i": 21,
    "prompt": "",
-   "a": 4.9333,
-   "b": 7.119
+   "a": null,
+   "b": null
   },
   {
    "i": 22,
    "prompt": "",
-   "a": 6.071,
-   "b": 8.0456
+   "a": null,
+   "b": null
   },
   {
    "i": 23,
    "prompt": "",
-   "a": 3.6713,
-   "b": 7.2426
+   "a": null,
+   "b": null
   },
   {
    "i": 24,
    "prompt": "",
-   "a": 7.4029,
-   "b": 8.1288
+   "a": null,
+   "b": null
   },
   {
    "i": 25,
    "prompt": "",
-   "a": 4.7171,
-   "b": 8.6789
+   "a": null,
+   "b": null
   },
   {
    "i": 26,
    "prompt": "",
-   "a": 9.2618,
-   "b": 9.8461
+   "a": null,
+   "b": null
   },
   {
    "i": 27,
    "prompt": "",
-   "a": 2.6489,
-   "b": 8.8787
+   "a": null,
+   "b": null
   },
   {
    "i": 28,
    "prompt": "",
-   "a": 6.1727,
-   "b": 7.5542
+   "a": null,
+   "b": null
   },
   {
    "i": 29,
    "prompt": "",
-   "a": 6.2393,
-   "b": 8.5238
+   "a": null,
+   "b": null
   },
   {
    "i": 30,
    "prompt": "",
-   "a": 7.136,
-   "b": 6.9351
+   "a": null,
+   "b": null
   },
   {
    "i": 31,
    "prompt": "",
-   "a": 6.406,
-   "b": 9.5835
+   "a": null,
+   "b": null
   },
   {
    "i": 32,
    "prompt": "",
-   "a": 2.1525,
-   "b": 6.8079
+   "a": null,
+   "b": null
   },
   {
    "i": 33,
    "prompt": "",
-   "a": 3.0984,
-   "b": 6.8816
+   "a": null,
+   "b": null
   },
   {
    "i": 34,
    "prompt": "",
-   "a": 9.7659,
-   "b": 9.2382
+   "a": null,
+   "b": null
   },
   {
    "i": 35,
    "prompt": "",
-   "a": 6.2422,
-   "b": 8.019
+   "a": null,
+   "b": null
   },
   {
    "i": 36,
    "prompt": "",
-   "a": 6.3364,
-   "b": 8.3728
+   "a": null,
+   "b": null
   },
   {
    "i": 37,
    "prompt": "",
-   "a": 3.3271,
-   "b": 7.3012
+   "a": null,
+   "b": null
   },
   {
    "i": 38,
    "prompt": "",
-   "a": 6.8471,
-   "b": 8.4789
+   "a": null,
+   "b": null
   },
   {
    "i": 39,
    "prompt": "",
-   "a": 9.5748,
-   "b": 8.4209
+   "a": null,
+   "b": null
   },
   {
    "i": 40,
    "prompt": "",
-   "a": 8.6094,
-   "b": 10.2053
+   "a": null,
+   "b": null
   },
   {
    "i": 41,
    "prompt": "",
-   "a": 8.8712,
-   "b": 10.4554
+   "a": null,
+   "b": null
   },
   {
    "i": 42,
    "prompt": "",
-   "a": 8.6301,
-   "b": 10.5327
+   "a": null,
+   "b": null
   },
   {
    "i": 43,
    "prompt": "",
-   "a": 6.9067,
-   "b": 5.4805
+   "a": null,
+   "b": null
   },
   {
    "i": 44,
    "prompt": "",
-   "a": 2.9391,
-   "b": 4.7151
+   "a": null,
+   "b": null
   },
   {
    "i": 45,
    "prompt": "",
-   "a": 8.0644,
-   "b": 8.3047
+   "a": null,
+   "b": null
   },
   {
    "i": 46,
    "prompt": "",
-   "a": 8.0556,
-   "b": 10.4329
+   "a": null,
+   "b": null
   },
   {
    "i": 47,
    "prompt": "",
-   "a": 8.359,
-   "b": 9.5676
+   "a": null,
+   "b": null
   },
   {
    "i": 48,
    "prompt": "",
-   "a": 8.0881,
-   "b": 8.8133
+   "a": null,
+   "b": null
   },
   {
    "i": 49,
    "prompt": "",
-   "a": 8.9496,
-   "b": 10.1611
+   "a": null,
+   "b": null
   },
   {
    "i": 50,
    "prompt": "",
-   "a": 3.4842,
-   "b": 8.6086
+   "a": null,
+   "b": null
   },
   {
    "i": 51,
    "prompt": "",
-   "a": 7.2233,
-   "b": 7.9407
+   "a": null,
+   "b": null
   },
   {
    "i": 52,
    "prompt": "",
-   "a": 5.0802,
-   "b": 10.7386
+   "a": null,
+   "b": null
   },
   {
    "i": 53,
    "prompt": "",
-   "a": 4.4351,
-   "b": 7.0641
+   "a": null,
+   "b": null
   },
   {
    "i": 54,
    "prompt": "",
-   "a": 9.9808,
-   "b": 9.17
+   "a": null,
+   "b": null
   },
   {
    "i": 55,
    "prompt": "",
-   "a": 7.1623,
-   "b": 8.4641
+   "a": null,
+   "b": null
   },
   {
    "i": 56,
    "prompt": "",
-   "a": 9.1671,
-   "b": 10.8581
+   "a": null,
+   "b": null
   },
   {
    "i": 57,
    "prompt": "",
-   "a": 6.6362,
-   "b": 10.6532
+   "a": null,
+   "b": null
   },
   {
    "i": 58,
    "prompt": "",
-   "a": 6.2618,
-   "b": 9.1697
+   "a": null,
+   "b": null
   },
   {
    "i": 59,
    "prompt": "",
-   "a": 5.8892,
-   "b": 8.2367
+   "a": null,
+   "b": null
   },
   {
    "i": 60,
    "prompt": "",
-   "a": 6.2657,
-   "b": 9.8025
+   "a": null,
+   "b": null
   }
  ]
 };

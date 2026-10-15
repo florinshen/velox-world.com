@@ -87,7 +87,7 @@ Reported quantitative results on Wan2.2-TI2V-5B:
 
 Public galleries:
 
-- Wan2.2-TI2V-5B: 61 matched video prompts comparing the base model with RPO, using the same prompt and starting noise, with per-prompt HPSv3 scores — https://velox-world.com/rpo/wan2.2/
+- Wan2.2-TI2V-5B: 61 matched 13-frame video clips comparing the base model with RPO, using the same prompt and starting noise. The replacement set does not include matching per-prompt scores — https://velox-world.com/rpo/wan2.2/
 - SD3.5-Medium: 64 matched image prompts comparing the base model with RPO, with per-prompt HPSv3 scores — https://velox-world.com/rpo/sd3.5/
 
 Important qualifiers:

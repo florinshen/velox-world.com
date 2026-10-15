@@ -126,35 +126,34 @@
       </div>
       <div class="stage-foot">
         <div class="score-line" style="width:100%">
-          <span>HPSv3 · base <b id="v-base">7.89</b></span>
-          <span>RPO <b id="v-rpo">8.96</b></span>
-          <span>change <b class="g" id="v-gain">+1.07</b></span>
+          <span>Base and RPO · matched prompt and starting noise</span>
+          <span>Replacement clips · no attached score data</span>
         </div>
       </div>
     </div>
     <video id="v-video" class="vsrc" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
 
     <div class="clip-tabs rv" id="v-tabs" role="tablist" aria-label="Choose a prompt">
-      <button type="button" class="clip-tab" role="tab" aria-selected="true" data-n="0000" data-base="7.89" data-rpo="8.96" data-gain="+1.07">
-        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0000.jpg')"></span><span class="meta"><b>Prompt 0</b><small>7.89 → 8.96</small></span>
+      <button type="button" class="clip-tab" role="tab" aria-selected="true" data-n="0000">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters-v629s50/0000.jpg')"></span><span class="meta"><b>Prompt 0</b><small>base ↔ RPO</small></span>
       </button>
-      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0001" data-base="7.98" data-rpo="9.32" data-gain="+1.34">
-        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0001.jpg')"></span><span class="meta"><b>Prompt 1</b><small>7.98 → 9.32</small></span>
+      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0001">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters-v629s50/0001.jpg')"></span><span class="meta"><b>Prompt 1</b><small>base ↔ RPO</small></span>
       </button>
-      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0002" data-base="7.95" data-rpo="9.33" data-gain="+1.38">
-        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0002.jpg')"></span><span class="meta"><b>Prompt 2</b><small>7.95 → 9.33</small></span>
+      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0002">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters-v629s50/0002.jpg')"></span><span class="meta"><b>Prompt 2</b><small>base ↔ RPO</small></span>
       </button>
-      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0003" data-base="6.09" data-rpo="9.71" data-gain="+3.62">
-        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0003.jpg')"></span><span class="meta"><b>Prompt 3</b><small>6.09 → 9.71</small></span>
+      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0003">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters-v629s50/0003.jpg')"></span><span class="meta"><b>Prompt 3</b><small>base ↔ RPO</small></span>
       </button>
-      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0004" data-base="7.62" data-rpo="9.14" data-gain="+1.52">
-        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0004.jpg')"></span><span class="meta"><b>Prompt 4</b><small>7.62 → 9.14</small></span>
+      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0004">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters-v629s50/0004.jpg')"></span><span class="meta"><b>Prompt 4</b><small>base ↔ RPO</small></span>
       </button>
-      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0005" data-base="8.64" data-rpo="6.87" data-gain="−1.77">
-        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0005.jpg')"></span><span class="meta"><b>Prompt 5</b><small>8.64 → 6.87</small></span>
+      <button type="button" class="clip-tab" role="tab" aria-selected="false" data-n="0005">
+        <span class="th" style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters-v629s50/0005.jpg')"></span><span class="meta"><b>Prompt 5</b><small>base ↔ RPO</small></span>
       </button>
     </div>
-    <p class="byline" style="margin-top:14px">Prompts 0 to 5 of the 61-prompt comparison set, in order, with HPSv3 for each clip. Across all 61 prompts the mean HPSv3 goes from 7.03 to 8.74; RPO scores higher on 52 prompts and lower on 9. Every prompt is in the gallery below.</p>
+    <p class="byline" style="margin-top:14px">Prompts 0 to 5 of the 61-prompt replacement set, shown in numeric order. Matching score data was not included with these clips, so the viewer does not attach the previous gallery's scores to them. Every prompt is in the gallery below.</p>
   </section>
 
   <!-- ============ HEADLINE NUMBERS ============ -->
@@ -395,13 +394,13 @@
       <div class="gallery-links">
         <a class="g-card rv" href="wan2.2/">
           <div class="th dual">
-            <span style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0000.jpg');background-size:auto 100%;background-position:0 0;background-repeat:no-repeat"></span>
-            <span style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters/0000.jpg');background-size:auto 100%;background-position:100% 0;background-repeat:no-repeat"></span>
+            <span style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters-v629s50/0000.jpg');background-size:auto 100%;background-position:0 0;background-repeat:no-repeat"></span>
+            <span style="background-image:url('https://media.velox-world.com/rpo/wan2.2/posters-v629s50/0000.jpg');background-size:auto 100%;background-position:100% 0;background-repeat:no-repeat"></span>
           </div>
           <div class="tx">
             <h4>Wan2.2-TI2V-5B · video</h4>
-            <p>61 prompts, each a 5-second 1280 × 704 clip, base against RPO, with a wipe, side-by-side and per-frame viewer.</p>
-            <p class="m">HPSv3 7.03 → 8.74 · RPO higher on 52 of 61</p>
+            <p>61 prompts, each a 13-frame 1280 × 704 clip, base against RPO, with a wipe, side-by-side and per-frame viewer.</p>
+            <p class="m">Matched prompt and starting noise · numeric order</p>
           </div>
         </a>
         <a class="g-card rv" style="--d:80ms" href="sd3.5/">

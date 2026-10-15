@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Base against RPO · Wan2.2-TI2V-5B · Velox World</title>
-<meta name="description" content="Compare 61 matched Wan2.2-TI2V-5B video generations before and after Routing Policy Optimization (RPO), using the same prompts and starting noise with per-prompt HPSv3 scores.">
+<meta name="description" content="Compare 61 matched Wan2.2-TI2V-5B video generations before and after Routing Policy Optimization (RPO), using the same prompts and starting noise.">
 <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1, max-snippet:-1">
 <meta name="googlebot" content="index, follow, max-image-preview:large, max-video-preview:-1, max-snippet:-1">
 <meta name="theme-color" content="#04060b">
@@ -82,6 +82,7 @@
   }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { background: var(--room); }
 body {
   margin: 0; background: var(--room); color: var(--ink);
@@ -110,6 +111,7 @@ button { cursor: pointer; }
 .mast { padding: 26px 0 8px; }
 .eyebrow { margin: 0 0 14px; }
 .bench { display: grid; grid-template-columns: minmax(0, 640px) minmax(0, 1fr); gap: 34px; align-items: start; }
+.bench > *, .stagebox, .readout { min-width: 0; }
 h1 {
   margin: 0; font-family: var(--cond); font-weight: 700; letter-spacing: -0.005em;
   font-size: clamp(38px, 4.6vw, 68px); line-height: 0.95;
@@ -348,15 +350,6 @@ h1 { letter-spacing: -0.045em; }
         <p class="meant" id="meant"></p>
         <p class="headline" id="headline"></p>
         <p class="lede" id="lede"></p>
-        <section class="gains" aria-labelledby="hGain">
-          <h2 id="hGain">Gain per prompt</h2>
-          <p class="sub" id="gainSub"></p>
-          <div class="plot" id="plot"></div>
-          <div class="axisnote">
-            <span>Each bar is one prompt · HPSv3 points</span>
-            <span class="legend"><span><i class="key b"></i>B scores higher</span><span><i class="key a"></i>A scores higher</span></span>
-          </div>
-        </section>
       </div>
     </div>
   </header>
@@ -364,19 +357,13 @@ h1 { letter-spacing: -0.045em; }
 
 <div class="deck" id="deck">
   <div class="wrap">
-    <div class="ctl"><label class="eng" for="selSort">Sort</label>
+    <div class="ctl" hidden><label class="eng" for="selSort">Sort</label>
       <select id="selSort">
         <option value="order">Prompt number</option>
-        <option value="gainDesc">Largest gain first</option>
-        <option value="gainAsc">Smallest gain first</option>
-        <option value="baseAsc">Lowest base score first</option>
-        <option value="bDesc">Highest RPO score first</option>
       </select>
     </div>
-    <div class="ctl"><span class="eng">Show</span><div class="seg" role="group" aria-label="Which prompts" id="segShow">
+    <div class="ctl" hidden><span class="eng">Show</span><div class="seg" role="group" aria-label="Which prompts" id="segShow">
       <button type="button" data-v="all" aria-pressed="true">All</button>
-      <button type="button" data-v="b" aria-pressed="false">B higher</button>
-      <button type="button" data-v="a" aria-pressed="false">A higher</button>
     </div></div>
     <div class="ctl"><span class="eng">Size</span><div class="seg" role="group" aria-label="Clip size" id="segSize">
       <button type="button" data-v="s" aria-pressed="false">Small</button>
@@ -451,6 +438,7 @@ h1 { letter-spacing: -0.045em; }
   }
   var M = D.meta, S = M.settings, V = M.video, items = D.items.slice().sort(function (p, q) { return p.i - q.i; });
   if (items.some(function (it, n) { return it.i !== n; })) { document.body.textContent = "data.js is not the one this page was built with (prompt numbers are not 0, 1, 2, ...)."; return; }
+  var hasScores = M.scores !== false && items.every(function (it) { return Number.isFinite(it.a) && Number.isFinite(it.b); });
   var TOTAL = 2 * V.half + V.gap;
   var rootStyle = document.documentElement.style;
   rootStyle.setProperty("--half", V.half); rootStyle.setProperty("--gap", V.gap);
@@ -492,8 +480,9 @@ h1 { letter-spacing: -0.045em; }
   }
 
   // ---------- numbers ----------
-  var meanA = mean(items.map(function (it) { return it.a; })), meanB = mean(items.map(function (it) { return it.b; }));
-  var higher = items.filter(function (it) { return it.b > it.a; }).length;
+  var meanA = hasScores ? mean(items.map(function (it) { return it.a; })) : 0;
+  var meanB = hasScores ? mean(items.map(function (it) { return it.b; })) : 0;
+  var higher = hasScores ? items.filter(function (it) { return it.b > it.a; }).length : 0;
   var railMax = Math.max(1, Math.ceil(Math.max(meanA, meanB) + 0.5));
   function railW(v) { return Math.max(0, Math.min(100, 100 * v / railMax)).toFixed(1) + "%"; }
 
@@ -553,7 +542,8 @@ h1 { letter-spacing: -0.045em; }
     v.src = clipSrc(it.i);
     v.setAttribute("aria-label", "Prompt " + it.i + ", A (base model) on the left and B (after RPO) on the right.");
     this.still.src = stillSrc(it.i);
-    this.node.querySelector(".sa").textContent = f2(it.a); this.node.querySelector(".sb").textContent = f2(it.b);
+    this.node.querySelector(".sa").textContent = hasScores ? f2(it.a) : "base";
+    this.node.querySelector(".sb").textContent = hasScores ? f2(it.b) : "RPO";
     this.fit();
   };
   Stage.prototype.setMode = function (mode) {
@@ -617,21 +607,32 @@ h1 { letter-spacing: -0.045em; }
   function settleAll() { live.forEach(function (st) { st.settle(); }); }
 
   // ---------- masthead ----------
-  document.getElementById("eyebrow").textContent = M.a.name + " · " + items.length + " validation prompts · HPSv3";
+  document.getElementById("eyebrow").textContent = M.a.name + " · " + items.length + " matched prompts";
   var plates = document.getElementById("plates");
   [["a", "A", meanA], ["b", "B", meanB]].forEach(function (pp) {
     var side = pp[0], row = el("div", "plate"), who = el("div", "who");
     row.appendChild(el("span", "tag " + side, pp[1]));
     who.appendChild(el("span", "name", M[side].name)); who.appendChild(el("span", "note", M[side].note));
-    row.appendChild(who); row.appendChild(el("span", "val num", f2(pp[2])));
-    var rail = el("div", "rail " + side); rail.appendChild(el("i")).style.setProperty("--w", railW(pp[2]));
-    row.appendChild(rail); plates.appendChild(row);
+    row.appendChild(who);
+    if (hasScores) {
+      row.appendChild(el("span", "val num", f2(pp[2])));
+      var rail = el("div", "rail " + side); rail.appendChild(el("i")).style.setProperty("--w", railW(pp[2]));
+      row.appendChild(rail);
+    }
+    plates.appendChild(row);
   });
-  document.getElementById("meant").textContent = "Mean HPSv3 over the " + items.length + " prompts. Higher is better.";
+  document.getElementById("meant").textContent = hasScores
+    ? "Mean HPSv3 over the " + items.length + " prompts. Higher is better."
+    : "Matching scores were not provided with these replacement clips, so no score is attached to them.";
   var head = document.getElementById("headline");
-  head.appendChild(el("b", null, "B scores higher on " + higher + " of " + items.length + " prompts."));
-  head.appendChild(document.createTextNode(" The mean gain is " + sg(meanB - meanA) + "."));
-  var seconds = (S.frames / S.fps).toFixed(0);
+  if (hasScores) {
+    head.appendChild(el("b", null, "B scores higher on " + higher + " of " + items.length + " prompts."));
+    head.appendChild(document.createTextNode(" The mean gain is " + sg(meanB - meanA) + "."));
+  } else {
+    head.appendChild(el("b", null, "All 61 matched pairs are shown in numeric order."));
+  }
+  var duration = S.frames / S.fps;
+  var seconds = duration < 1 ? duration.toFixed(2) : duration.toFixed(0);
   var settings = S.steps + " sampling steps, classifier-free guidance " + S.guidance + ", " + S.width + " × " + S.height + ", " +
     S.frames + " frames at " + S.fps + " frames per second (" + seconds + " seconds)";
   var lede = document.getElementById("lede");
@@ -641,14 +642,16 @@ h1 { letter-spacing: -0.045em; }
   lede.appendChild(el("b", null, "B"));
   lede.appendChild(document.createTextNode(" is the same model after RPO fine-tuning. " + settings + ". Drag across the clip to wipe between the two."));
 
-  var byGain = items.slice().sort(function (p, q) { return gainOf(p) - gainOf(q); });
+  var byGain = hasScores ? items.slice().sort(function (p, q) { return gainOf(p) - gainOf(q); }) : items.slice();
   var median = byGain[Math.floor(byGain.length / 2)];
-  var featured = items[M.featured] || median;      // data.js can name the opening pair; otherwise the median gain
+  var featured = hasScores ? (items[M.featured] || median) : items[0];
   var heroNode = document.getElementById("heroStage"), heroModes = document.getElementById("heroModes");
   var hero = new Stage(heroNode, true);
   hero.load(featured, true); watch(hero);
   var feat = document.getElementById("featured");
-  feat.appendChild(el("span", "why eng", "Prompt " + featured.i + (featured === median ? " · the median gain, " : " · gain ") + sg(gainOf(featured))));
+  feat.appendChild(el("span", "why eng", hasScores
+    ? "Prompt " + featured.i + (featured === median ? " · the median gain, " : " · gain ") + sg(gainOf(featured))
+    : "Prompt " + featured.i + " · first in numeric order"));
   feat.appendChild(caption(featured.prompt, 3));
   heroModes.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; hero.setMode(b.dataset.mode); press(heroModes, "data-mode", b.dataset.mode); });
   document.getElementById("heroOpen").addEventListener("click", function () { openScope(featured.i); });
@@ -666,6 +669,7 @@ h1 { letter-spacing: -0.045em; }
   }
 
   // ---------- gain per prompt ----------
+  if (hasScores) {
   var plot = document.getElementById("plot"), tip = document.getElementById("tip");
   var gAll = items.map(gainOf);
   var gMax = Math.max(0.5, Math.max.apply(null, gAll)), gMin = Math.min(0, Math.min.apply(null, gAll));
@@ -717,6 +721,7 @@ h1 { letter-spacing: -0.045em; }
     card.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
     card.classList.add("hit"); setTimeout(function () { card.classList.remove("hit"); }, 2200);
   });
+  }
 
   // ---------- cards ----------
   var cards = document.getElementById("cards"), view = [], cardStages = [];
@@ -725,11 +730,13 @@ h1 { letter-spacing: -0.045em; }
     c.id = "p" + it.i;
     h.appendChild(el("span", "no", "No " + it.i));
     h.appendChild(caption(it.prompt, 3));
-    var g = el("div", "gain num", sg(gainOf(it))); g.appendChild(el("small", null, "gain")); h.appendChild(g);
+    if (hasScores) { var g = el("div", "gain num", sg(gainOf(it))); g.appendChild(el("small", null, "gain")); h.appendChild(g); }
     c.appendChild(h);
     var node = el("div", "stage"); node.dataset.mode = state.view; node.dataset.open = it.i;
     node.tabIndex = 0; node.setAttribute("role", "button");
-    node.setAttribute("aria-label", "Prompt " + it.i + ": A " + f2(it.a) + " on the left, B " + f2(it.b) + " on the right. Press Enter for the large view.");
+    node.setAttribute("aria-label", hasScores
+      ? "Prompt " + it.i + ": A " + f2(it.a) + " on the left, B " + f2(it.b) + " on the right. Press Enter for the large view."
+      : "Prompt " + it.i + ": base model on the left, model after RPO on the right. Press Enter for the large view.");
     var st = new Stage(node, false); st.load(it, false);
     cardStages.push(st); watch(st);
     c.appendChild(node);
@@ -739,12 +746,12 @@ h1 { letter-spacing: -0.045em; }
     cardStages.forEach(function (st) { st.dispose(); });
     live = live.filter(function (st) { return cardStages.indexOf(st) < 0; });
     cardStages = [];
-    view = items.filter(function (it) {
+    view = hasScores ? items.filter(function (it) {
       var g = gainOf(it);
       return state.show === "all" || (state.show === "b" ? g > 0 : g < 0);
-    });
-    var key = { gainDesc: function (it) { return -gainOf(it); }, gainAsc: gainOf,
-                baseAsc: function (it) { return it.a; }, bDesc: function (it) { return -it.b; } }[state.sort];
+    }) : items.slice();
+    var key = hasScores ? { gainDesc: function (it) { return -gainOf(it); }, gainAsc: gainOf,
+                baseAsc: function (it) { return it.a; }, bDesc: function (it) { return -it.b; } }[state.sort] : null;
     if (key) view.sort(function (p, q) { return key(p) - key(q) || p.i - q.i; });
     cards.textContent = "";
     cards.style.setProperty("--card", CARD[state.view][state.size]); cards.dataset.size = state.size; cards.dataset.view = state.view;
@@ -815,11 +822,11 @@ h1 { letter-spacing: -0.045em; }
     no.appendChild(el("small", null, (at + 1) + " of " + list.length));
     document.getElementById("scopeCap").textContent = it.prompt;
     rows.textContent = "";
-    [["a", "A · " + M.a.name, f2(it.a)], ["b", "B · " + M.b.name.replace(/^\+\s*/, ""), f2(it.b)]].forEach(function (c) {
+    [["a", "A · " + M.a.name, hasScores ? f2(it.a) : "base"], ["b", "B · " + M.b.name.replace(/^\+\s*/, ""), hasScores ? f2(it.b) : "RPO"]].forEach(function (c) {
       var tr = el("tr"), td = el("td"); td.appendChild(el("i", "key " + c[0])); td.appendChild(document.createTextNode(c[1]));
       tr.appendChild(td); tr.appendChild(el("td", "num", c[2])); rows.appendChild(tr);
     });
-    var sum = el("tr", "sum"); sum.appendChild(el("td", null, "Gain")); sum.appendChild(el("td", "num", sg(gainOf(it)))); rows.appendChild(sum);
+    if (hasScores) { var sum = el("tr", "sum"); sum.appendChild(el("td", null, "Gain")); sum.appendChild(el("td", "num", sg(gainOf(it)))); rows.appendChild(sum); }
     [list[at - 1], list[at + 1]].forEach(function (nb) { if (nb) new Image().src = stillSrc(nb.i); });
   }
   function openScope(i) {
@@ -879,8 +886,8 @@ h1 { letter-spacing: -0.045em; }
   // ---------- footer ----------
   var foot = document.getElementById("foot");
   foot.appendChild(el("p", null, "Both models are sampled with the same settings: " + settings +
-    ", and the same starting noise for the two clips of a pair. A score is the mean HPSv3 of every 4th frame of a clip."));
-  foot.appendChild(el("p", null, "Each file in " + V.dir + "/ holds both clips of one prompt, A on the left and B on the right. Every number on this page is also in scores.tsv, next to this file."));
+    ", and the same starting noise for the two clips of a pair."));
+  foot.appendChild(el("p", null, "Each file in " + V.dir + "/ holds both clips of one prompt, A on the left and B on the right. The replacement set does not include matching score data."));
 
   // ---------- first paint ----------
   renderCards(); deckH();

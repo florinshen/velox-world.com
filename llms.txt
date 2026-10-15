@@ -15,7 +15,7 @@ Canonical site: https://velox-world.com/
 
 ## Galleries
 
-- [RPO on Wan2.2-TI2V-5B](https://velox-world.com/rpo/wan2.2/): 61 prompts, base model against RPO, same prompt and same starting noise, with per-prompt HPSv3 scores.
+- [RPO on Wan2.2-TI2V-5B](https://velox-world.com/rpo/wan2.2/): 61 matched 13-frame clips, base model against RPO, with the same prompt and starting noise. The replacement set does not include matching per-prompt scores.
 - [RPO on SD3.5-Medium](https://velox-world.com/rpo/sd3.5/): 64 prompts, base model against RPO, with per-prompt HPSv3 scores.
 
 ## Status
