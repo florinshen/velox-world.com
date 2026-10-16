@@ -24,8 +24,8 @@
 <meta property="og:title" content="Velox World — Efficient world models for physical AI">
 <meta property="og:description" content="A research initiative building efficient world models that physical AI can plan and act inside.">
 <meta property="og:url" content="https://velox-world.com/">
-<meta property="og:image" content="https://media.velox-world.com/assets/img/og.png">
-<meta property="og:image:secure_url" content="https://media.velox-world.com/assets/img/og.png">
+<meta property="og:image" content="https://media.velox-world.com/assets/img/og-v2.png">
+<meta property="og:image:secure_url" content="https://media.velox-world.com/assets/img/og-v2.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -34,7 +34,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Velox World — Efficient world models for physical AI">
 <meta name="twitter:description" content="A research initiative building efficient world models that physical AI can plan and act inside.">
-<meta name="twitter:image" content="https://media.velox-world.com/assets/img/og.png">
+<meta name="twitter:image" content="https://media.velox-world.com/assets/img/og-v2.png">
 <meta name="twitter:image:alt" content="Velox World — efficient world models for physical AI">
 
 <script type="application/ld+json">
@@ -52,7 +52,7 @@
         "url": "https://media.velox-world.com/assets/img/favicon.svg",
         "contentUrl": "https://media.velox-world.com/assets/img/favicon.svg"
       },
-      "image": "https://media.velox-world.com/assets/img/og.png",
+      "image": "https://media.velox-world.com/assets/img/og-v2.png",
       "description": "A research initiative building efficient world models for physical AI.",
       "email": "contact@velox-world.com",
       "contactPoint": {
@@ -98,7 +98,7 @@
       "about": { "@id": "https://velox-world.com/#org" },
       "primaryImageOfPage": {
         "@type": "ImageObject",
-        "url": "https://media.velox-world.com/assets/img/og.png",
+        "url": "https://media.velox-world.com/assets/img/og-v2.png",
         "width": 1200,
         "height": 630
       },
@@ -110,11 +110,12 @@
     {
       "@type": "ResearchProject",
       "@id": "https://velox-world.com/velox/#project",
-      "name": "Velox: Spatial Memory Makes Long-context World Models Efficient",
+      "name": "Velox: Spatial Memory Makes World Models Efficient",
       "alternateName": "Velox",
       "url": "https://velox-world.com/velox/",
+      "sameAs": "https://arxiv.org/abs/2610.22311",
       "description": "A training-free attention router for chunked video world models that uses streaming geometry for region-level context selection.",
-      "image": "https://media.velox-world.com/assets/img/og-velox.png",
+      "image": "https://media.velox-world.com/assets/img/og-velox-v2.png",
       "keywords": ["world models", "spatial memory", "efficient attention", "video generation"],
       "parentOrganization": { "@id": "https://velox-world.com/#org" }
     },
@@ -124,6 +125,7 @@
       "name": "Routing Policy Optimization for Online Diffusion Reinforcement Learning",
       "alternateName": "RPO",
       "url": "https://velox-world.com/rpo/",
+      "sameAs": "https://arxiv.org/abs/2610.22282",
       "description": "An online diffusion reinforcement-learning method that explores by routing attention, with routes drawn from the generator's own attention mass, and restores dense attention at inference.",
       "image": "https://media.velox-world.com/assets/img/og-rpo.png",
       "keywords": ["diffusion models", "reinforcement learning", "attention routing", "visual generation"],
@@ -341,7 +343,7 @@
           </div>
           <div class="body">
             <p class="kicker">Velox · Consistent</p>
-            <h3>Spatial memory makes long&#8209;context world models efficient</h3>
+            <h3>Spatial memory makes world models efficient</h3>
             <p>A training-free attention router. Camera frustum slabs from streaming geometry tell each new region of the video which parts of the past actually matter, so later chunks stop paying for the entire history.</p>
             <div class="facts">
               <div class="fact"><b>4.36×</b><small>attention · chunk 48</small></div>
@@ -410,7 +412,7 @@
   <section class="closing" aria-labelledby="close-h">
     <div class="wrap">
       <h2 id="close-h" class="rv">World models that physical AI can act in.</h2>
-      <p class="lead rv" style="--d:80ms">Preprints for Velox and RPO are headed to arXiv, with code and results to follow. Until then, the project pages hold the visual results.</p>
+      <p class="lead rv" style="--d:80ms">The Velox and RPO preprints are on arXiv, with code and results to follow. The project pages hold the visual results.</p>
       <div class="hero-cta rv" style="--d:160ms">
         <a class="btn primary" href="velox/">Velox <span class="arr" aria-hidden="true">→</span></a>
         <a class="btn" href="rpo/">RPO <span class="arr" aria-hidden="true">→</span></a>
@@ -443,7 +445,8 @@
       <div>
         <h4>Releases</h4>
         <ul>
-          <li>arXiv preprints: coming soon</li>
+          <li><a href="https://arxiv.org/abs/2610.22311" target="_blank" rel="noopener">Velox on arXiv</a></li>
+          <li><a href="https://arxiv.org/abs/2610.22282" target="_blank" rel="noopener">RPO on arXiv</a></li>
           <li>Code and results: coming soon</li>
           <li><a href="llms.txt">Machine-readable summary</a></li>
           <li><a href="https://github.com/florinshen/velox-world.com">Website source</a></li>

@@ -25,6 +25,8 @@
 <meta name="citation_author" content="Wang, Xinchao">
 <meta name="citation_author_institution" content="National University of Singapore">
 <meta name="citation_author_institution" content="ByteDance">
+<meta name="citation_arxiv_id" content="2610.22282">
+<meta name="citation_publication_date" content="2026/10/15">
 <link rel="alternate" hreflang="en" href="https://velox-world.com/rpo/">
 <link rel="alternate" hreflang="x-default" href="https://velox-world.com/rpo/">
 <link rel="alternate" type="text/plain" href="https://velox-world.com/llms.txt" title="Velox World — LLM summary">
@@ -78,6 +80,9 @@
     ],
     "url": "https://velox-world.com/rpo/",
     "mainEntityOfPage": { "@id": "https://velox-world.com/rpo/#webpage" },
+    "datePublished": "2026-10-15",
+    "sameAs": ["https://arxiv.org/abs/2610.22282"],
+    "identifier": "arXiv:2610.22282",
     "image": "https://media.velox-world.com/assets/img/og-rpo.png",
     "keywords": ["diffusion models", "reinforcement learning", "attention routing", "online RL", "visual generation"],
     "isAccessibleForFree": true,
@@ -121,7 +126,7 @@
   <section class="p-hero">
     <div class="blueprint" aria-hidden="true"></div>
     <div class="wrap">
-      <p class="crumbs rv"><a href="../">Velox World</a><span>/</span><span>Research</span><span>/</span><span style="color:var(--text)">RPO</span><span class="state"><i></i>Preprint · arXiv soon</span></p>
+      <p class="crumbs rv"><a href="../">Velox World</a><span>/</span><span>Research</span><span>/</span><span style="color:var(--text)">RPO</span><a class="state" href="https://arxiv.org/abs/2610.22282" target="_blank" rel="noopener"><i></i>Preprint · arXiv</a></p>
       <h1 class="p-title rv" style="--d:60ms"><span class="grad">RPO</span></h1>
       <p class="p-sub rv" style="--d:120ms">Routing Policy Optimization <em>for online diffusion reinforcement learning.</em></p>
       <div class="authors rv" style="--d:150ms">
@@ -143,7 +148,7 @@
       <p class="lead p-lead rv" style="--d:180ms">Reinforcement learning can align visual generators with rewards beyond pretraining, but score-function methods usually inject noise into the reverse trajectory and pay for it with large groups of complete rollouts. RPO moves exploration <b>inside</b> the generator: attention routing, drawn from the generator's own attention mass, becomes the stochastic action, and inference returns to dense attention with the original sampler.</p>
       <div class="p-cta rv" style="--d:240ms">
         <a class="btn primary" href="#viewer">Compare base and RPO <span class="arr" aria-hidden="true">↓</span></a>
-        <a class="btn" href="#release">Paper <span class="soon">arXiv · soon</span></a>
+        <a class="btn" href="https://arxiv.org/abs/2610.22282" target="_blank" rel="noopener">Paper <span class="soon">arXiv</span></a>
         <a class="btn" href="#release">Code <span class="soon">soon</span></a>
       </div>
     </div>
@@ -478,14 +483,23 @@
       <div class="split">
         <div class="rv">
           <p class="eyebrow"><i></i>04 · Release</p>
-          <h2 style="margin-top:22px;font-size:clamp(30px,3.8vw,48px);letter-spacing:-0.024em;line-height:1.1">What is coming, and when it lands here.</h2>
-          <p class="lead" style="margin-top:22px">This page will be updated in place when the preprint is public. Citation details appear here at that point.</p>
+          <h2 style="margin-top:22px;font-size:clamp(30px,3.8vw,48px);letter-spacing:-0.024em;line-height:1.1">The preprint is public.</h2>
+          <p class="lead" style="margin-top:22px">Cite the arXiv version below. Code and results will be linked here when they are released.</p>
         </div>
         <div class="release rv" style="--d:100ms">
-          <div class="rel-row"><span class="i">01</span><div><h4>Preprint</h4><p>The paper, with implementation settings and evaluation protocols in the appendix.</p></div><span class="st">arXiv · soon</span></div>
+          <div class="rel-row"><span class="i">01</span><div><h4>Preprint</h4><p>The paper, with implementation settings and evaluation protocols in the appendix.</p></div><a class="st live" href="https://arxiv.org/abs/2610.22282" target="_blank" rel="noopener">arXiv · 2610.22282</a></div>
           <div class="rel-row"><span class="i">02</span><div><h4>Code and results</h4><p>Training code for the routing policy and the evaluation outputs.</p></div><span class="st">Planned</span></div>
           <div class="rel-row"><span class="i">03</span><div><h4>MiniMax-H3 gallery</h4><p>A third comparison page, next to Wan2.2 and SD3.5.</p></div><span class="st">Planned</span></div>
         </div>
+      </div>
+      <div class="bib rv" style="margin-top:clamp(32px,4vw,56px)">
+        <button type="button" class="btn copy" data-copy="#bib-rpo" style="--h:34px;font-size:13px;padding:0 14px">Copy</button>
+        <pre id="bib-rpo">@article{shen2026rpo,
+  title   = {Routing Policy Optimization for Online Diffusion Reinforcement Learning},
+  author  = {Shen, Qiuhong and Yang, Yiding and Zhang, Yuxin and Huang, Xinwei and Lin, Minxuan and Liu, Bo and Kang, Hao and Yang, Haotian and Wang, Yizhi and Ma, Chongyang and Wang, Xinchao},
+  journal = {arXiv preprint arXiv:2610.22282},
+  year    = {2026}
+}</pre>
       </div>
     </div>
   </section>
